@@ -1,13 +1,15 @@
 import React from 'react';
 import {
   Button,
+  FlatList,
+  Text,
   Platform,
   StyleSheet,
   AsyncStorage,
   View,
 } from 'react-native';
 
-export default class HomeScreen extends React.Component {
+export default class ForMeQuestionsScreen extends React.Component {
   static navigationOptions = {
     title: 'Welcome to the app!',
   };
@@ -15,8 +17,10 @@ export default class HomeScreen extends React.Component {
   render() {
     return (
       <View>
-        <Button title="Show me more of the app" onPress={this._showMoreApp} />
-        <Button title="Actually, sign me out :)" onPress={this._signOutAsync} />
+        <FlatList
+          data={[{ key: 'a' }, { key: 'b' }]}
+          renderItem={({ item }) => <Text>{item.key}</Text>}
+        />
       </View>
     );
   }

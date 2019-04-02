@@ -2,13 +2,13 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { createBottomTabNavigator } from 'react-navigation';
 
-import TabBarIcon from '../components/TabBarIcon';
-import MyQuestionsScreen from '../screens/Questions/MyQuestionsScreen'
-import ForMeQuestionsScreen from '../screens/Questions/ForMeQuestionsScreen'
+import TabBarIcon from '../../components/TabBarIcon';
+import ForMeQuestionsScreen from './ForMeQuestionsStackNavigator'
+import Questions from './MyQuestionsStackNavigator'
 
 export default createBottomTabNavigator({
-    MyQuestionsScreen: {
-        screen: MyQuestionsScreen,
+    Questions: {
+        screen: Questions,
         // Optional: Override the `navigationOptions` for the screen
         navigationOptions: ({ navigation }) => ({
             tabBarLabel: 'My',
@@ -38,16 +38,4 @@ export default createBottomTabNavigator({
             ),
         }),
     },
-},
-    // {
-    //     tabBarOptions: {
-    //         activeTintColor: '#e91e63',
-    //         labelStyle: {
-    //             fontSize: 16,
-    //         },
-    //         style: {
-    //             // backgroundColor: 'white',
-    //         },
-    //     }
-    // }
-);
+});

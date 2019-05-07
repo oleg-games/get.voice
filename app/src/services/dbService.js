@@ -2,11 +2,12 @@
  * @class Database
  */
 
-// import * as firebase from "firebase";
-// import 'firebase/firestore'
 import Firebase from '@config/firebase';
+import questions from '@data/questions';
 
 export default class Database {
+
+    static INIT_DATABASE = true;
 
     constructor(props) {
         console.log('test', props)
@@ -16,6 +17,11 @@ export default class Database {
      * Get current Database
      */
     static getDatabase() {
+        console.log('this.initDate', this.INIT_DATABASE)
+        // if (this.INIT_DATABASE) {
+        //     this.initDatabase();
+        // }
+
         if (!Firebase.firebaseAppsLength) {
             console.log('Firebase NOT Inizialized');
             Firebase.initialize();
@@ -101,8 +107,80 @@ export default class Database {
      * @param {string} fromPhone
      * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
      */
-    static getQuestionsByPhone(fromPhone) {
+    static async getQuestionsByPhone(fromPhone) {
+        console.log('test')
+        this.getDatabase().collection("answers").get()
+        // const questions = await this.getDatabase().collection("answers").get();
+        // questions.forEach((el) => el.id)
+        // this.getDatabase().collection("questions").where("answers.toPhone", "==", "79193424223").get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    console.log("Sub Document ID: ", doc.id);
+                })
+            }).catch(err => {
+                console.log("Error getting sub-collection documents", err);
+            })
+        // const answers = await this.getDatabase().collection("questions").where("answers.toPhone", "==", "+79193424223").get();
+        // console.log('answers', answers.data())
+        // answers.forEach((doc) => {
+        //     console.log('test it')
+        //     console.log('answers', doc.data())
+        //     // const docData = await doc.ref.collection('answers').get();
+        //     // console.log('datass', docData.data());
+        //     // items.push({ ...doc.data(), id: doc.id });
+        // });
+        // console.log('aaa')
+
+        // const questionsSnapshot = await Database.getQuestionsByPhone('89507355808')
+        // const questionsSnapshot = 
+        // Database.getQuestionAnsersByPhone('89507355808')
+        // const questionsSnapshot = await Database.getAnsersByPhone('89507355808')
+        // const items = [];
+
+        // questionsSnapshot.forEach((doc) => {
+        //     // console.log('doc', doc.data())
+        //     items.push({ ...doc.data(), id: doc.id });
+        // });
+
+
         return this.getQuestionsCol().where("fromPhone", "==", fromPhone).get();
+    }
+
+    /**
+     * Get all answers by toPhone number
+     * @param {string} fromPhone
+     * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
+     */
+    static getAnsersByPhone(toPhone) {
+        // var messageRef = db.collection('rooms').doc('roomA')
+        //         .collection('messages').doc('message1');
+        return this.getAnswersCol().where("toPhone", "==", toPhone).get();
+    }
+
+    static async getQuestionAnsersByPhone(toPhone) {
+        // const answers = await this.getAnsersByPhone(toPhone);
+        // // for (const answer of answers) {
+        // // }
+        // console.log('answers', answers);
+        // answers.forEach(answer => {
+        //     let questionAnswer = { ...answer.data(), id: answer.id };
+        //     console.log('element', questionAnswer)
+        //     // const question = this.getQuestion(questionAnswer.questionId).then(question => {
+        //     //     console.log('question', question)
+        //     //     questionAnswer = { ...questionAnswer, ...question.data() }
+        //     //     console.log('questionAnswer', questionAnswer)
+        //     // });
+        // });
+        // var messageRef = db.collection('rooms').doc('roomA')
+        //         .collection('messages').doc('message1');
+        // return this.getAnswersCol().where("toPhone", "==", toPhone).then(() => {
+        //     const items = [];
+        //     questionsSnapshot.forEach((doc) => {
+        //         console.log('doc', doc.data())
+        //         items.push({ ...doc.data(), id: doc.id });
+        //     })
+        // });
+        return this.getAnswersCol().where("toPhone", "==", toPhone).get();
     }
 
     /**
@@ -161,6 +239,18 @@ export default class Database {
 
     static get imageRef() {
         return Firebase.getImageRef();
+    }
+
+    static async initDatabase() {
+        // console.log(questions.my);
+        // for(const question of questions.my) {
+        //     await Database.addQuestion('89507355808', question.text, question.image);
+        // }
+
+        // console.log(questions.forMe);
+        // for(const question of questions.forMe) {
+        //     await Database.addQuestion('89507355808', question.text, question.image);
+        // }
     }
 
     // //Progress bar add

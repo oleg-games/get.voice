@@ -153,6 +153,7 @@ export default class QuestionScreen extends GVComponent {
       ],
       pageOffset: 0,
     });
+
     if (contacts.total > 0) {
       const allContacts = contacts.data
         .reduce((all, el) => el.phoneNumbers ? all.concat(el.phoneNumbers) : all, [])

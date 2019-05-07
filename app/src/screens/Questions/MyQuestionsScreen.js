@@ -45,9 +45,13 @@ export default class MyQuestionsScreen extends GVComponent {
     try {
       this._isLoading(true);
       const questionsSnapshot = await Database.getQuestionsByPhone('89507355808')
+      // const questionsSnapshot = 
+      // Database.getQuestionAnsersByPhone('89507355808')
+      // const questionsSnapshot = await Database.getAnsersByPhone('89507355808')
       const items = [];
 
       questionsSnapshot.forEach((doc) => {
+        // console.log('doc', doc.data())
         items.push({ ...doc.data(), id: doc.id });
       });
 

@@ -64,13 +64,6 @@ export default class ForMeQuestionsScreen extends React.Component {
                       <Text style={Standart.listItemText}>{item.questionText}</Text>
                       <Text style={Standart.listItemSubText}>From: {item.fromPhone}</Text>
                     </Body>
-                    {/* <Right>
-                      <Button
-                        transparent
-                        onPress={this._showQuestionForMe.bind(this, item)}>
-                        <Text>Get answer</Text>
-                      </Button>
-                    </Right> */}
                   </ListItem>
                 } />
             </Row>

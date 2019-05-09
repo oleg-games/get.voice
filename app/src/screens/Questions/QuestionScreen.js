@@ -161,8 +161,7 @@ export default class QuestionScreen extends GVComponent {
         questionId: id,
         contacts: allContacts,
       });
-      this.props.navigation.back();
-      // this.props.navigation.goBack();
+      this.props.navigation.goBack();
     }
   }
 

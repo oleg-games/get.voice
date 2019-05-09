@@ -26,7 +26,6 @@ export default class GVComponent extends React.Component {
         YellowBox.ignoreWarnings(['Setting a timer']);
     }
 
-    // Later on in your component
     async componentDidMount() {
         try {
             await Font.loadAsync({
@@ -41,6 +40,11 @@ export default class GVComponent extends React.Component {
         }
         this._setDefaultState();
         await this._loadParams();
+        console.log('test')
+    }
+
+    componentDidUpdate() {
+        console.log('updated')
     }
 
     _setDefaultState() {

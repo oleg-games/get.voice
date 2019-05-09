@@ -4,24 +4,20 @@
 
 import Firebase from '@config/firebase';
 import questions from '@data/questions';
+import answers from '@data/answers';
 
 export default class Database {
 
     static INIT_DATABASE = true;
 
     constructor(props) {
-        console.log('test', props)
+        console.log('Create database instanse', props)
     }
 
     /**
      * Get current Database
      */
     static getDatabase() {
-        console.log('this.initDate', this.INIT_DATABASE)
-        // if (this.INIT_DATABASE) {
-        //     this.initDatabase();
-        // }
-
         if (!Firebase.firebaseAppsLength) {
             console.log('Firebase NOT Inizialized');
             Firebase.initialize();
@@ -108,79 +104,132 @@ export default class Database {
      * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
      */
     static async getQuestionsByPhone(fromPhone) {
-        console.log('test')
-        this.getDatabase().collection("answers").get()
-        // const questions = await this.getDatabase().collection("answers").get();
-        // questions.forEach((el) => el.id)
-        // this.getDatabase().collection("questions").where("answers.toPhone", "==", "79193424223").get()
-            .then(snapshot => {
-                snapshot.forEach(doc => {
-                    console.log("Sub Document ID: ", doc.id);
-                })
-            }).catch(err => {
-                console.log("Error getting sub-collection documents", err);
-            })
-        // const answers = await this.getDatabase().collection("questions").where("answers.toPhone", "==", "+79193424223").get();
-        // console.log('answers', answers.data())
-        // answers.forEach((doc) => {
-        //     console.log('test it')
-        //     console.log('answers', doc.data())
-        //     // const docData = await doc.ref.collection('answers').get();
-        //     // console.log('datass', docData.data());
-        //     // items.push({ ...doc.data(), id: doc.id });
-        // });
-        // console.log('aaa')
-
-        // const questionsSnapshot = await Database.getQuestionsByPhone('89507355808')
-        // const questionsSnapshot = 
-        // Database.getQuestionAnsersByPhone('89507355808')
-        // const questionsSnapshot = await Database.getAnsersByPhone('89507355808')
-        // const items = [];
-
-        // questionsSnapshot.forEach((doc) => {
-        //     // console.log('doc', doc.data())
-        //     items.push({ ...doc.data(), id: doc.id });
-        // });
-
-
         return this.getQuestionsCol().where("fromPhone", "==", fromPhone).get();
     }
 
     /**
+     * Get all answers by toPhone number which contains empty answer
+     *
+     * @param {string} toPhone
+     * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
+     */
+    static async getAnsersEmptyTextByToPhone(toPhone) {
+        const res = await this.getAnswersCol()
+            .where("toPhone", "==", toPhone)
+            .where("text", '==', '')
+            .get()
+        let mainListItems = [];
+
+        for (const doc of res.docs) {
+            let newItem = { ...doc.data(), id: doc.id };
+            if (newItem.questionRef) {
+                const question = await newItem.questionRef.get()
+                newItem.questionRef = { ...question.data(), id: question.id };
+            }
+
+            mainListItems.push(newItem);
+        }
+
+        return mainListItems;
+    }
+
+    /**
+     * Get all answers by toPhone number which contains not empty answer
+     *
+     * @param {string} toPhone
+     * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
+     */
+    static async getAnsersNotEmptyTextByToPhone(toPhone) {
+        const res = await this.getAnswersCol()
+            .where("toPhone", "==", toPhone)
+            .where("text", '>', '')
+            .get()
+        let mainListItems = [];
+
+        for (const doc of res.docs) {
+            let newItem = { ...doc.data(), id: doc.id };
+            if (newItem.questionRef) {
+                const question = await newItem.questionRef.get()
+                newItem.questionRef = { ...question.data(), id: question.id };
+            }
+
+            mainListItems.push(newItem);
+        }
+
+        return mainListItems;
+    }
+
+    /**
+     * Get all answers by fromPhone number which contains not empty answer
+     *
+     * @param {string} toPhone
+     * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
+     */
+    static async getAnsersNotEmptyTextByFromPhone(fromPhone) {
+        const questions = await this.getQuestionsCol()
+            .where("fromPhone", "==", fromPhone)
+            .get()
+        let mainListItems = [];
+        for (const question of questions.docs) {
+            const answers = await this.getAnswersCol()
+                .where("text", '>', '')
+                .get()
+
+            for (const answer of answers.docs) {
+                let newItem = { ...answer.data(), id: answer.id };
+                newItem.questionRef = { ...question.data(), id: question.id };
+                mainListItems.push(newItem)
+            }
+        }
+
+        return mainListItems;
+    }
+
+    /**
      * Get all answers by toPhone number
+     * @param {string} toPhone
+     * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
+     */
+    static async getAnsersByToPhone(toPhone) {
+        const res = await this.getAnswersCol().where("toPhone", "==", toPhone).get()
+        let mainListItems = [];
+
+        for (const doc of res.docs) {
+            let newItem = { ...doc.data(), id: doc.id };
+            if (newItem.questionRef) {
+                const question = await newItem.questionRef.get()
+                newItem.questionRef = { ...question.data(), id: question.id };
+            }
+
+            mainListItems.push(newItem);
+        }
+
+        return mainListItems;
+    }
+
+    /**
+     * Get all answers by fromPhone number
      * @param {string} fromPhone
      * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
      */
-    static getAnsersByPhone(toPhone) {
-        // var messageRef = db.collection('rooms').doc('roomA')
-        //         .collection('messages').doc('message1');
-        return this.getAnswersCol().where("toPhone", "==", toPhone).get();
-    }
+    static async getAnsersByFromPhone(fromPhone) {
+        const res = this.getAnswersCol().where("toPhone", "==", fromPhone).get()
+        let mainListItems = [];
 
-    static async getQuestionAnsersByPhone(toPhone) {
-        // const answers = await this.getAnsersByPhone(toPhone);
-        // // for (const answer of answers) {
-        // // }
-        // console.log('answers', answers);
-        // answers.forEach(answer => {
-        //     let questionAnswer = { ...answer.data(), id: answer.id };
-        //     console.log('element', questionAnswer)
-        //     // const question = this.getQuestion(questionAnswer.questionId).then(question => {
-        //     //     console.log('question', question)
-        //     //     questionAnswer = { ...questionAnswer, ...question.data() }
-        //     //     console.log('questionAnswer', questionAnswer)
-        //     // });
-        // });
-        // var messageRef = db.collection('rooms').doc('roomA')
-        //         .collection('messages').doc('message1');
-        // return this.getAnswersCol().where("toPhone", "==", toPhone).then(() => {
-        //     const items = [];
-        //     questionsSnapshot.forEach((doc) => {
-        //         console.log('doc', doc.data())
-        //         items.push({ ...doc.data(), id: doc.id });
-        //     })
-        // });
-        return this.getAnswersCol().where("toPhone", "==", toPhone).get();
+        for (const doc of res.docs) {
+            let newItem = doc.data();
+            newItem.id = doc.id;
+            if (newItem.questionRef) {
+                const question = await newItem.questionRef.get()
+                newItem.questionRef = question.data()
+                mainListItems.push(newItem);
+            } else {
+                mainListItems.push(newItem);
+            }
+
+        }
+
+        return mainListItems;
     }
 
     /**
@@ -190,6 +239,41 @@ export default class Database {
      */
     static getQuestion(id) {
         return this.getQuestionsCol().doc(id).get();
+    }
+
+    /**
+     * Get answer by id
+     * @param {string} id
+     * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
+     */
+    static async getAnswer(id) {
+        const doc = await this.getAnswersCol().doc(id).get();
+        if (!doc || !doc.exists) {
+            throw new Error(`Cannot find answer with id ${id}`)
+        }
+
+        let newItem = { ...doc.data(), id: doc.id };
+
+        if (newItem.questionRef) {
+            const question = await newItem.questionRef.get()
+            newItem.questionRef = { ...question.data(), id: question.id };
+        }
+        return newItem;
+    }
+
+    /**
+     * Update answer by id
+     *
+     * @param {string} id
+     * @param {object} data
+     * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
+     */
+    static async updateAnswer(id, data) {
+        try {
+            await this.getAnswersCol().doc(id).update(data);
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     /**
@@ -214,15 +298,6 @@ export default class Database {
         return this.getAnswersCol().add(answer);
     }
 
-    // /**
-    //  * Get all question by fromPhone number
-    //  * @param fromPhone
-    //  * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
-    //  */
-    // static getQuestionsByPhone({fromPhone}) {
-    //     return this.getQuestionsCol().where("fromPhone", "==", fromPhone).get();
-    // }
-
     /**
      * Add item to database
      * @param item
@@ -242,39 +317,15 @@ export default class Database {
     }
 
     static async initDatabase() {
-        // console.log(questions.my);
-        // for(const question of questions.my) {
-        //     await Database.addQuestion('89507355808', question.text, question.image);
-        // }
+        console.log('Init Database --->>>>')
+        console.log(questions.my);
+        for(const question of questions.my) {
+            await Database.addQuestion('89507355808', question.text, question.image);
+        }
 
         // console.log(questions.forMe);
         // for(const question of questions.forMe) {
         //     await Database.addQuestion('89507355808', question.text, question.image);
         // }
     }
-
-    // //Progress bar add
-    // static uploadImageAsync = async (uri) => {
-    //     const blob = await new Promise((resolve, reject) => {
-    //         const xhr = new XMLHttpRequest();
-    //         xhr.onload = function () {
-    //             resolve(xhr.response);
-    //         };
-    //         xhr.onerror = function (e) {
-    //             console.log(e);
-    //             reject(new TypeError('Network request failed'));
-    //         };
-    //         xhr.responseType = 'blob';
-    //         xhr.open('GET', uri, true);
-    //         xhr.send(null);
-    //     });
-
-    //     const ref = this.getImageRef()
-    //         .child(uuid.v4());
-    //     const uploadTask  = await ref.put(blob);
-
-    //     blob.close();
-
-    //     return await uploadTask.ref.getDownloadURL();
-    // }
 };

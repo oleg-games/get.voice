@@ -44,16 +44,8 @@ export default class MyQuestionsScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
-      const questionsSnapshot = await Database.getQuestionsByPhone('89507355808')
-      // const questionsSnapshot = 
-      // Database.getQuestionAnsersByPhone('89507355808')
-      // const questionsSnapshot = await Database.getAnsersByPhone('89507355808')
-      const items = [];
-
-      questionsSnapshot.forEach((doc) => {
-        // console.log('doc', doc.data())
-        items.push({ ...doc.data(), id: doc.id });
-      });
+      const questionsSnapshot = await Database.getQuestionsByPhone('89507355808');
+      const items = questionsSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
 
       this.setState({ items });
     } catch (error) {
@@ -94,6 +86,15 @@ export default class MyQuestionsScreen extends GVComponent {
               <Icon ios="ios-person-add" android="md-person-add" />
               <Text> Add Question </Text>
             </Button>
+            <Button
+              iconLeft
+              block
+              primary
+              style={Standart.button}
+              onPress={this._fillData}>
+              <Icon ios="ios-person-add" android="md-person-add" />
+              <Text> Fill DB </Text>
+            </Button>
           </Row>
         </Grid>
       </Content>);
@@ -110,5 +111,9 @@ export default class MyQuestionsScreen extends GVComponent {
   _showNewQuestion = async () => {
     const { navigate } = this.props.navigation;
     navigate('MyQuestion')
+  };
+
+  _fillData = async () => {
+    await Database.initDatabase();
   };
 }

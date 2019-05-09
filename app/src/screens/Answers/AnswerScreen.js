@@ -1,15 +1,15 @@
 import React from 'react';
-import {  StyleSheet,  AsyncStorage,  Image } from 'react-native';
-import { Container, Textarea, Form, Grid, Icon, Row, Content, Button, Text, Label } from 'native-base';
-import { AppLoading, ImagePicker, Permissions, Font, Contacts } from 'expo';
+import GVComponent from '@components/GVComponent';
+import { AsyncStorage, Image } from 'react-native';
+import { ImagePicker, Permissions, Contacts } from 'expo';
+import { Textarea, Form, Grid, Icon, Row, Content, Button, Text, Label } from 'native-base';
 import { PRIMARY_STANDART_MARGIN } from '@styles/common.js';
 import Standart from '@styles/standart.js';
 import StorageConst from '@constants/Storage';
 // At the top of your file
-import { Ionicons } from '@expo/vector-icons';
-import questions from '@data/questions';
+import Database from '@services/dbService';
 
-export default class AnswerScreen extends React.Component {
+export default class AnswerScreen extends GVComponent {
 
   constructor(props) {
     super(props);
@@ -19,7 +19,7 @@ export default class AnswerScreen extends React.Component {
       answer: undefined,
       text: '',
       value: 'aaaa',
-      imageUri: undefined,
+      imgSource: undefined,
       fontLoaded: false,
       containsError: false,
     };
@@ -37,153 +37,158 @@ export default class AnswerScreen extends React.Component {
     };
   };
 
-  // Later on in your component
-  async componentDidMount() {
-    await this._loadFonts();
-    await this._loadParams();
-  }
-
-  render() {
-    if (!this.state.fontLoaded) {
-      return <AppLoading />;
-    }
-    console.log('this.state.answer.image', this.state)
+  _renderContent() {
     return (
-      <Container>
-        <Content padder contentContainerStyle={Standart.container}>
-          <Grid>
-            <Row style={Standart.container}>
-              <Form ref={'form'} style={{ flex: 1 }}>
-                <Label
-                  style={Standart.answerText}>
-                  {this.state.answer && this.state.answer.questionText}
-                </Label>
-                <Label
-                  style={Standart.itemSubText}>
-                  From: {this.state.answer && this.state.answer.fromPhone}
-                </Label>
-                <Textarea
-                  rowSpan={5}
-                  // style={!this.state.answer ? Standart.answerText : Standart.NONE}
-                  style={Standart.questionText}
-                  value={this.state.answerText}
-                  bordered
-                  placeholder="Answer"
-                  onChangeText={(answerText) => this.setState({ answerText })} />
-                <Button
-                  iconLeft
-                  block
-                  light
-                  style={Standart.button}
-                  // style={!this.state.answer ? Standart.button : Standart.NONE}
-                  onPress={this._onAddImage}>
-                  <Icon name='add' />
-                  <Text> Add Image </Text>
-                </Button>
-                <Image
-                  source={{ uri: this.state.imageUri }}
-                  style={this.state.answer && this.state.answer.answerImage ? Standart.answerImage : Standart.NONE}
-                />
-                <Image
-                  source={{ uri: this.state.imageUri }}
-                  style={this.state.imageUri ? Standart.answerImage : Standart.NONE}
-                />
-                {/* <Image
-                  source={!(this.state.answer && this.state.answer.id) ? { uri: this.state.imageUri } : { uri: this.state.answer.image}}
-                  style={Standart.answerImage}
-                /> */}
-                <Image
-                  source={{ uri: this.state.answer && this.state.answer.questionImage}}
-                  style={Standart.questionImage}
-                />
-              </Form>
-            </Row>
-            <Row style={!(this.state.answer && this.state.answer.text) ? Standart.buttonRow : Standart.NONE}>
+      <Content padder contentContainerStyle={Standart.container}>
+        <Grid>
+          <Row style={Standart.container}>
+            <Form ref={'form'} style={{ flex: 1 }}>
+              <Label
+                style={Standart.answerText}>
+                {this.state.answer && this.state.answer.questionRef.text}
+              </Label>
+              <Label
+                style={Standart.itemSubText}>
+                From: {this.state.answer && this.state.answer.questionRef.fromPhone}
+              </Label>
+              <Textarea
+                rowSpan={5}
+                // style={!this.state.answer ? Standart.answerText : Standart.NONE}
+                style={Standart.questionText}
+                value={this.state.answerText}
+                bordered
+                placeholder="Answer"
+                onChangeText={(answerText) => this.setState({ answerText })} />
               <Button
                 iconLeft
                 block
-                primary
+                light
                 style={Standart.button}
-                onPress={this._onAddQuestion}>
-                <Icon ios="ios-person-add" android="md-person-add" />
-                <Text> Get answer </Text>
+                // style={!this.state.answer ? Standart.button : Standart.NONE}
+                onPress={this._onAddImage}>
+                <Icon name='add' />
+                <Text> Add Image </Text>
               </Button>
-            </Row>
-          </Grid>
-        </Content>
-      </Container>
+              <Image
+                source={{ uri: this.state.imgSource }}
+                style={this.state.answer && this.state.answer.answerImage ? Standart.answerImage : Standart.NONE}
+              />
+              <Image
+                source={{ uri: this.state.imgSource }}
+                style={this.state.imgSource ? Standart.answerImage : Standart.NONE}
+              />
+              {/* <Image
+                  source={!(this.state.answer && this.state.answer.id) ? { uri: this.state.imgSource } : { uri: this.state.answer.image}}
+                  style={Standart.answerImage}
+                /> */}
+              <Image
+                source={{ uri: this.state.answer && this.state.answer.questionRef.image }}
+                style={Standart.questionImage}
+              />
+            </Form>
+          </Row>
+          <Row style={Standart.buttonRow}>
+          {/* <Row style={!(this.state.answer && this.state.answer.text) ? Standart.buttonRow : Standart.NONE}> */}
+            <Button
+              iconLeft
+              block
+              primary
+              style={Standart.button}
+              onPress={this._onGetAnswer}>
+              <Icon ios="ios-person-add" android="md-person-add" />
+              <Text> Get answer </Text>
+            </Button>
+          </Row>
+        </Grid>
+      </Content>
     );
   }
 
   componentWillUnmount = async () => {
-    await AsyncStorage.removeItem(StorageConst.QUESTION);
-  }
-
-  _loadFonts = async () => {
-    try {
-      await Font.loadAsync({
-        'Roboto': require('native-base/Fonts/Roboto.ttf'),
-        'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
-        ...Ionicons.font,
-      });
-      this.setState({ fontLoaded: true });
-
-    } catch (error) {
-      alert('error loading icon fonts', error);
-    }
+    await AsyncStorage.removeItem(StorageConst.ANSWER);
   }
 
   _loadParams = async () => {
     try {
+      console.log('test1')
+      this._isLoading(true);
       const phoneNumber = await AsyncStorage.getItem(StorageConst.PHONE_NUMBER);
-      const questionId = await AsyncStorage.getItem(StorageConst.QUESTION);
-      //async to get answer info
-      if (questionId) {
-        const answer = questions && questions.forMe && questions.forMe.find((el) => el.id === questionId)
-        console.log('finded answer', answer)
+      const answerId = await AsyncStorage.getItem(StorageConst.ANSWER);
+      // //async to get answer info
+      if (answerId) {
+        const answer = await Database.getAnswer(answerId);
         if (answer) {
-          this.setState({ phoneNumber, answer });
+          console.log({ answer });
+          this.setState({ answer });
         } else {
-          throw new Error(`cannot find answer with id ${questionId}`);
+          throw new Error(`cannot find answer with id ${answerId}`);
         }
-      } else {
-        this.setState({ phoneNumber });
       }
+      this.setState({ phoneNumber });
     } catch (error) {
-      console.log(error)
+      console.log('error', error)
       alert('error loading params from router', error);
+    } finally {
+      this._isLoading(false);
     }
   }
 
-  _onAddQuestion = () => {
+  _onGetAnswer = async () => {
     if (!this.state.answerText) {
       alert('Please fill answer text')
       return;
     }
 
-    this._showFirstContactAsync();
+    try {
+      this._isLoading(true);
+      console.log('imgSource', this.state.imgSource);
+      const url = await this._handleImagePicked(this.state.imgSource);
+      await this._showFirstContactAsync(url);
+    } catch (err) {
+      console.log('Error when add question', err);
+      alert('Error when add question', err);
+    } finally {
+      this._isLoading(false);
+    }
   };
 
-  async _showFirstContactAsync() {
+  _handleImagePicked = async pickerResult => {
+    try {
+      return await this._uploadImageAsync(pickerResult);
+    } catch (e) {
+      console.log(e);
+      alert('Upload failed:', error);
+    }
+  };
+
+  async _showFirstContactAsync(url) {
     // Ask for permission to query contacts.
     const permission = await Permissions.askAsync(Permissions.CONTACTS);
 
     if (permission.status !== 'granted') {
-      // Permission was denied...
-      return;
+      throw new Error('Denied CONTACTS permissions!');
     }
+
     const contacts = await Contacts.getContactsAsync({
       fields: [
         Contacts.PHONE_NUMBERS,
       ],
       pageOffset: 0,
     });
+
     if (contacts.total > 0) {
       const allContacts = contacts.data
         .reduce((all, el) => el.phoneNumbers ? all.concat(el.phoneNumbers) : all, [])
         .map((el) => el.number);
-      console.log('allContacts', allContacts)
-      const { navigate } = this.props.navigation.goBack();
+      console.log('data', { text: this.state.answerText, image: url })
+      await Database.updateAnswer(this.state.answer.id, { text: this.state.answerText, image: url });
+      console.log('Done')
+      // await axiosPublic.post('/addAnswers', {
+      //   questionId: id,
+      //   contacts: allContacts,
+      // });
+      this.props.navigation.goBack();
+
     }
   }
 
@@ -221,7 +226,7 @@ export default class AnswerScreen extends React.Component {
     if (result.cancelled) {
       return;
     }
-    this.setState({ imageUri: result.uri });
+    this.setState({ imgSource: result.uri });
     // ImagePicker saves the taken photo to disk and returns a local URI to it
     // let localUri = result.uri;
     // let filename = localUri.split('/').pop();

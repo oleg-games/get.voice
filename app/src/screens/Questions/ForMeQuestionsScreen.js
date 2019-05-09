@@ -1,21 +1,20 @@
 import React from 'react';
+import GVComponent from '@components/GVComponent';
 import { AsyncStorage } from 'react-native';
-import { Container, Row, Grid, Header, Icon, Content, List, ListItem, Thumbnail, Text, Left, Body, Right, Button } from 'native-base';
-import { AppLoading, ImagePicker, Permissions, Font, Contacts } from 'expo';
+import { Row, Grid, Header, Icon, Content, List, ListItem, Thumbnail, Text, Left, Body, Right, Button } from 'native-base';
 // At the top of your file
-import { Ionicons } from '@expo/vector-icons';
 import Standart from '@styles/standart';
 import StorageConst from '@constants/Storage';
-import questions from '@data/questions';
+import Database from '@services/dbService';
 
-export default class ForMeQuestionsScreen extends React.Component {
+export default class ForMeQuestionsScreen extends GVComponent {
 
   constructor(props) {
     super(props);
     this.state = {
       phoneNumber: '',
       fontLoaded: false,
-      items: questions.forMe
+      items: []
     };
     this._bootstrapAsync();
   }
@@ -30,52 +29,47 @@ export default class ForMeQuestionsScreen extends React.Component {
     title: 'For me Questions',
   };
 
-  // Later on in your component
-  async componentDidMount() {
+  _loadParams = async () => {
     try {
-      await Font.loadAsync({
-        'Roboto': require('native-base/Fonts/Roboto.ttf'),
-        'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
-        ...Ionicons.font,
-      });
-      this.setState({ fontLoaded: true });
+      this._isLoading(true);
+      const items = await Database.getAnsersEmptyTextByToPhone('89507355808');
+      this.setState({ items });
     } catch (error) {
-      alert('error loading icon fonts', error);
+      console.log('error loading items', error);
+      alert('error loading items', error);
+    } finally {
+      this._isLoading(false);
     }
-  }
+  };
 
-  render() {
-    if (!this.state.fontLoaded) {
-      return <AppLoading />;
-    }
+  _renderContent() {
     return (
-      <Container>
-        <Content padder contentContainerStyle={Standart.container}>
-          <Grid>
-            <Row style={Standart.container}>
-              <List
-                dataArray={this.state.items}
-                renderRow={(item) =>
-                  <ListItem thumbnail onPress={this._showQuestionForMe.bind(this, item)}>
-                    <Left>
-                      <Thumbnail square source={{uri: item.questionImage}} />
-                    </Left>
-                    <Body>
-                      <Text style={Standart.listItemText}>{item.questionText}</Text>
-                      <Text style={Standart.listItemSubText}>From: {item.fromPhone}</Text>
-                    </Body>
-                  </ListItem>
-                } />
-            </Row>
-          </Grid>
-        </Content>
-      </Container>
+      <Content padder contentContainerStyle={Standart.container}>
+        <Grid>
+          <Row style={Standart.container}>
+            <List
+              dataArray={this.state.items}
+              renderRow={(item) =>
+                <ListItem thumbnail onPress={this._showQuestionForMe.bind(this, item)}>
+                  <Left>
+                    <Thumbnail square source={{ uri: item.questionRef && item.questionRef.image }} />
+                  </Left>
+                  <Body>
+                    <Text style={Standart.listItemText}>{item.questionRef && item.questionRef.text}</Text>
+                    <Text style={Standart.listItemSubText}>From: {item.questionRef && item.questionRef.fromPhone}</Text>
+                  </Body>
+                </ListItem>
+              } />
+          </Row>
+        </Grid>
+      </Content>
     );
   }
 
   _showQuestionForMe = async (answer) => {
+    console.log(answer)
     const { navigate } = this.props.navigation;
-    await AsyncStorage.setItem(StorageConst.QUESTION, answer.id);
+    await AsyncStorage.setItem(StorageConst.ANSWER, answer.id);
     navigate('ForMeQuestion', {
       haveNotAnswer: true,
     })

@@ -6,5 +6,5 @@ export default createStackNavigator({
     ForMe: ForMeQuestionsScreen,
     ForMeQuestion: AnswerScreen,
 },{
-    // initialRouteName: 'ForMe',
+    initialRouteName: 'ForMe',
 });

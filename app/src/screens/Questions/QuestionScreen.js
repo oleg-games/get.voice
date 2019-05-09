@@ -96,13 +96,13 @@ export default class QuestionScreen extends GVComponent {
         const question = await Database.getQuestion(questionId);
 
         if (question && question.exists) {
-          this.setState({ phoneNumber, question: question.data() });
+          this.setState({ question: { ...question.data(), id: question.id } });
         } else {
           throw new Error(`cannot find question with id ${questionId}`);
         }
-      } else {
-        this.setState({ phoneNumber });
       }
+
+      this.setState({ phoneNumber });
     } catch (error) {
       console.log(error)
       alert('error loading item', error);
@@ -119,7 +119,6 @@ export default class QuestionScreen extends GVComponent {
 
     try {
       this._isLoading(true);
-      console.log('imgSource', this.state.imgSource);
       const url = await this._handleImagePicked(this.state.imgSource);
       await this._showFirstContactAsync(url);
     } catch (err) {
@@ -140,13 +139,12 @@ export default class QuestionScreen extends GVComponent {
   };
 
   async _showFirstContactAsync(url) {
-    // Ask for permission to query contacts.
     const permission = await Permissions.askAsync(Permissions.CONTACTS);
 
     if (permission.status !== 'granted') {
-      // Permission was denied...
-      return;
+      throw new Error('Denied CONTACTS permissions!');
     }
+
     const contacts = await Contacts.getContactsAsync({
       fields: [
         Contacts.PHONE_NUMBERS,
@@ -163,7 +161,8 @@ export default class QuestionScreen extends GVComponent {
         questionId: id,
         contacts: allContacts,
       });
-      this.props.navigation.goBack();
+      this.props.navigation.back();
+      // this.props.navigation.goBack();
     }
   }
 

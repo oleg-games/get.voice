@@ -119,7 +119,7 @@ export default class QuestionScreen extends GVComponent {
 
     try {
       this._isLoading(true);
-      const url = await this._handleImagePicked(this.state.imgSource);
+      const url = this.state.imgSource && await this._handleImagePicked(this.state.imgSource);
       await this._showFirstContactAsync(url);
     } catch (err) {
       console.log('Error when add question', err);
@@ -161,6 +161,7 @@ export default class QuestionScreen extends GVComponent {
         questionId: id,
         contacts: allContacts,
       });
+
       this.props.navigation.goBack();
     }
   }

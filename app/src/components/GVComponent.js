@@ -43,10 +43,6 @@ export default class GVComponent extends React.Component {
         console.log('test')
     }
 
-    componentDidUpdate() {
-        console.log('updated')
-    }
-
     _setDefaultState() {
         this.setState({ loading: true });
         this.setState({ uploading: false });

@@ -88,7 +88,7 @@ export default class AnswerScreen extends GVComponent {
             </Form>
           </Row>
           <Row style={Standart.buttonRow}>
-          {/* <Row style={!(this.state.answer && this.state.answer.text) ? Standart.buttonRow : Standart.NONE}> */}
+            {/* <Row style={!(this.state.answer && this.state.answer.text) ? Standart.buttonRow : Standart.NONE}> */}
             <Button
               iconLeft
               block
@@ -142,7 +142,7 @@ export default class AnswerScreen extends GVComponent {
     try {
       this._isLoading(true);
       console.log('imgSource', this.state.imgSource);
-      const url = await this._handleImagePicked(this.state.imgSource);
+      const url = this.state.imgSource && await this._handleImagePicked(this.state.imgSource);
       await this._showFirstContactAsync(url);
     } catch (err) {
       console.log('Error when add question', err);
@@ -180,9 +180,14 @@ export default class AnswerScreen extends GVComponent {
       const allContacts = contacts.data
         .reduce((all, el) => el.phoneNumbers ? all.concat(el.phoneNumbers) : all, [])
         .map((el) => el.number);
-      console.log('data', { text: this.state.answerText, image: url })
-      await Database.updateAnswer(this.state.answer.id, { text: this.state.answerText, image: url });
+      let data = { text: this.state.answerText }
+      if (url) {
+        data.image = url;
+      }
+      console.log('data', data)
+      await Database.updateAnswer(this.state.answer.id, data);
       console.log('Done')
+      // TODO
       // await axiosPublic.post('/addAnswers', {
       //   questionId: id,
       //   contacts: allContacts,

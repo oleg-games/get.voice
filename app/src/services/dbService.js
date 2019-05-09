@@ -171,8 +171,10 @@ export default class Database {
             .get()
         let mainListItems = [];
         for (const question of questions.docs) {
+            const ref = await this.getQuestionsCol().doc(question.id)
             const answers = await this.getAnswersCol()
                 .where("text", '>', '')
+                .where("questionRef", '==', ref)
                 .get()
 
             for (const answer of answers.docs) {
@@ -282,17 +284,15 @@ export default class Database {
      * @param toPhone
      * @param text answer text
      * @param image answer image
-     * @param questionId question id
+     * @param questionRef question reference for object -> .doc('questions/' + questionRefs.id)
      * @returns {firebase.Promise<any>|!firebase.Promise.<void>}
      */
-    static addAnswer(toPhone, text, image, questionId) {
+    static addAnswer({ toPhone, text, image, questionRef }) {
         let answer = {
             toPhone,
-            text,
-            questionId,
-        }
-        if (image) {
-            answer.image = image
+            text: text || '',
+            questionRef,
+            image: image || '',
         }
 
         return this.getAnswersCol().add(answer);
@@ -319,13 +319,44 @@ export default class Database {
     static async initDatabase() {
         console.log('Init Database --->>>>')
         console.log(questions.my);
-        for(const question of questions.my) {
+        for (const question of questions.my) {
             await Database.addQuestion('89507355808', question.text, question.image);
         }
 
-        // console.log(questions.forMe);
-        // for(const question of questions.forMe) {
-        //     await Database.addQuestion('89507355808', question.text, question.image);
-        // }
+        console.log(questions.forMe);
+        for (const answer of questions.forMe) {
+            const questionRefs = await Database.addQuestion(answer.question.fromPhone, answer.question.text, answer.question.image);
+            const data = {
+                toPhone: answer.toPhone,
+                questionRef: await Database.getDatabase().doc('questions/' + questionRefs.id),
+                text: '',
+                image: '',
+            };
+            await Database.addAnswer(data);
+        }
+
+        console.log(answers.my);
+        for (const answer of answers.my) {
+            const questionRefs = await Database.addQuestion(answer.question.fromPhone, answer.question.text, answer.question.image);
+            const data = {
+                toPhone: answer.toPhone,
+                questionRef: await Database.getDatabase().doc('questions/' + questionRefs.id),
+                text: answer.text,
+                image: answer.image,
+            };
+            await Database.addAnswer(data);
+        }
+        console.log(answers.forMe);
+        for (const answer of answers.forMe) {
+            const questionRefs = await Database.addQuestion(answer.question.fromPhone, answer.question.text, answer.question.image);
+            const data = {
+                toPhone: answer.toPhone,
+                questionRef: await Database.getDatabase().doc('questions/' + questionRefs.id),
+                text: answer.text,
+                image: answer.image,
+            };
+            await Database.addAnswer(data);
+        }
+
     }
 };

@@ -52,7 +52,7 @@ export default class MyAnswersScreen extends GVComponent {
                   <Thumbnail style={{ flex: 0.4 }} source={{ uri: item.questionRef && item.questionRef.image }} />
                   <Body>
                     <Text>{item.questionRef && item.questionRef.text}</Text>
-                    <Text note>From: {item.questionRef && item.questionRef.fromPhone}</Text>
+                    <Text note>To: {item.toPhone}</Text>
                   </Body>
                 </Left>
               </CardItem>

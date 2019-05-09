@@ -86,6 +86,8 @@ export default class MyQuestionsScreen extends GVComponent {
               <Icon ios="ios-person-add" android="md-person-add" />
               <Text> Add Question </Text>
             </Button>
+          </Row>
+          <Row style={Standart.buttonRow}>
             <Button
               iconLeft
               block
@@ -114,6 +116,14 @@ export default class MyQuestionsScreen extends GVComponent {
   };
 
   _fillData = async () => {
-    await Database.initDatabase();
+    try {
+      this._isLoading(true);
+      await Database.initDatabase();
+    } catch (error) {
+      console.log('error loading items', error);
+      alert('error loading items', error);
+    } finally {
+      this._isLoading(false);
+    }
   };
 }

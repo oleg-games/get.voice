@@ -4,10 +4,7 @@
  * @flow
  */
 
-// import React, { Component } from 'react';
-
 // // import {
-// //   AppRegistry,
 // //   StyleSheet,
 // //   Text,
 // //   TextInput,
@@ -151,6 +148,7 @@
 
 
 import React, { Component } from 'react';
+import GVComponent from '@components/GVComponent';
 
 import {
   AppRegistry,
@@ -164,19 +162,18 @@ import {
   AsyncStorage,
 } from 'react-native';
 
-// import Frisbee from 'frisbee';
+import { Button } from 'native-base';
+
 import Spinner from 'react-native-loading-spinner-overlay';
 import Form from 'react-native-form';
 import CountryPicker from 'react-native-country-picker-modal';
-// import axios from 'axios'
-
-// const api = new Frisbee({
-//   baseURI: 'http://localhost:3000',
-//   headers: {
-//     'Accept': 'application/json',
-//     'Content-Type': 'application/json'
-//   }
-// });
+// import { parsePhoneNumberFromString, parsePhoneNumber, ParseError } from 'libphonenumber-js'
+// import { parsePhoneNumberFromString as parseMobile } from 'libphonenumber-js/mobile'
+// import { formatIncompletePhoneNumber, AsYouType } from 'libphonenumber-js'
+// import googleLib from 'google-libphonenumber';
+// import phoneFormatter from 'phone';
+// import PhoneNumberA from 'awesome-phonenumber';
+import Standart from '@styles/standart.js';
 
 const MAX_LENGTH_CODE = 6;
 const MAX_LENGTH_NUMBER = 20;
@@ -222,7 +219,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    // fontFamily: 'Helvetica',
     fontSize: 16,
     fontWeight: 'bold'
   },
@@ -243,13 +239,12 @@ const styles = StyleSheet.create({
   callingCodeText: {
     fontSize: 20,
     color: brandColor,
-    // fontFamily: 'Helvetica',
     fontWeight: 'bold',
     paddingRight: 10
   }
 });
 
-export default class Verify extends Component {
+export default class Verify extends GVComponent {
 
   constructor(props) {
     super(props);
@@ -364,7 +359,7 @@ export default class Verify extends Component {
   _onChangeText = (val) => {
     if (!this.state.enterCode) return;
     if (val.length === MAX_LENGTH_CODE)
-    this._verifyCode();
+      this._verifyCode();
   }
 
   _tryAgain = () => {
@@ -375,6 +370,62 @@ export default class Verify extends Component {
 
   _getSubmitAction = () => {
     this.state.enterCode ? this._verifyCode() : this._getCode();
+  }
+
+  _getValidPhoneNumber() {
+    
+  }
+
+  _getSubmitAction1 = () => {
+    // const { phoneNumber } = this.refs.form.getValues();
+    // console.log('phoneNumber', phoneNumber)
+    // // phoneFormatter()
+    // console.log('formatter', phoneFormatter('+8' + phoneNumber));
+    // const a = new PhoneNumberA('phoneNumber')
+    // console.log('PhoneNumberA', a.isValid());
+    // const phoneUtil = googleLib.PhoneNumberUtil.getInstance();
+    // console.log('parseIncompletePhoneNumber', formatIncompletePhoneNumber('89507355808'))
+    // const asYouType = new AsYouType()
+    // // asYouType.input('89507355808')
+    // console.log(asYouType.input('+79507355808'))
+    // console.log(asYouType.getNumber().country)
+    // console.log(asYouType.getNumber().number)
+    // console.log(asYouType.getTemplate())
+    // // console.log(tel.getNationalNumber())
+    // // try {
+    // //   // const phone = parsePhoneNumber('Call: (213) 373-42-53 ext. 1234.')
+    // //   const phone = parsePhoneNumberFromString('Phone: 8 (800) 555 35 35.');
+    // //   console.log('phone', phone)
+    // //   console.log('phone', parseMobile('+79507355808').isValid())
+    // //   // const phone = parsePhoneNumber('Call: (213) 373-42-53 ext. 1234.')
+    // //   if (phone) {
+    // //     console.log('phone.isValid() ', phone.isValid())
+    // //     phone.country === 'RU'
+    // //     phone.number === '+78005553535'
+    // //     phone.isValid() === true
+    // //     phone.getType() === 'TOLL_FREE'
+    // //   }
+    // // } catch (error) {
+    // //   if (error instanceof ParseError) {
+    // //     // Not a phone number, non-existent country, etc.
+    // //     console.log(error.message)
+    // //   } else {
+    // //     throw error
+    // //   }
+    // // }
+
+
+    // // const phone = parsePhoneNumber(phoneNumber + '')
+    // // console.log('this.state.enterCode', this.state.enterCode)
+    // // console.log('phone', phone)
+
+    // // if (phone) {
+    // //   console.log('phone.isValid() ', phone.isValid())
+    // //   phone.country === 'RU'
+    // //   phone.number === '+78005553535'
+    // //   phone.isValid() === true
+    // //   phone.getType() === 'TOLL_FREE'
+    // // }
   }
 
   _changeCountry = (country) => {
@@ -416,7 +467,7 @@ export default class Verify extends Component {
         onChange={this._changeCountry}
         cca2={this.state.country.cca2}
         styles={countryPickerCustomStyles}
-        translation='eng'/>
+        translation='eng' />
     );
 
   }
@@ -463,7 +514,7 @@ export default class Verify extends Component {
 
             <TextInput
               ref={'textInput'}
-              name={this.state.enterCode ? 'code' : 'phoneNumber' }
+              name={this.state.enterCode ? 'code' : 'phoneNumber'}
               type={'TextInput'}
               underlineColorAndroid={'transparent'}
               autoCapitalize={'none'}
@@ -471,7 +522,7 @@ export default class Verify extends Component {
               onChangeText={this._onChangeText}
               placeholder={this.state.enterCode ? '_ _ _ _ _ _' : 'Phone Number'}
               keyboardType={Platform.OS === 'ios' ? 'number-pad' : 'numeric'}
-              style={[ styles.textInput, textStyle ]}
+              style={[styles.textInput, textStyle]}
               returnKeyType='go'
               autoFocus
               placeholderTextColor={brandColor}
@@ -481,8 +532,11 @@ export default class Verify extends Component {
 
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={this._getSubmitAction}>
-            <Text style={styles.buttonText}>{ buttonText }</Text>
+          <Button style={Standart.button} onPress={this._getSubmitAction}>
+            <Text style={styles.buttonText}>{buttonText}</Text>
+          </Button>
+          <TouchableOpacity style={styles.button} onPress={this._getSubmitAction1}>
+            <Text style={styles.buttonText}>Validate</Text>
           </TouchableOpacity>
 
           {this._renderFooter()}
@@ -499,5 +553,3 @@ export default class Verify extends Component {
     );
   }
 }
-
-// AppRegistry.registerComponent('example', () => example);

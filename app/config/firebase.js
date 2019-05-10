@@ -33,6 +33,13 @@ class Firebase {
   }
 
   /**
+   * Get Auth
+   */
+  static getAuth() {
+    return firebase.auth();
+  }
+
+  /**
    * Get Storage
    */
   static getStorage() {

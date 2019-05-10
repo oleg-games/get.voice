@@ -27,6 +27,16 @@ export default class Database {
         return Firebase.getFirestore();
     }
 
+    static getAuth() {
+        if (!Firebase.firebaseAppsLength) {
+            console.log('Firebase NOT Inizialized');
+            Firebase.initialize();
+        } else {
+        }
+
+        return Firebase.getAuth();
+    }
+
     /**
      * Get questions collection
      */

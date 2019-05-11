@@ -5,7 +5,7 @@ import { Textarea, Form, Grid, Icon, Row, Content, Button, Text, Label } from 'n
 import { ImagePicker, Permissions, Contacts } from 'expo';
 import Standart from '@styles/standart.js';
 import StorageConst from '@constants/Storage';
-import Database from '@services/dbService';
+import { Questions } from '@services';
 import axios from 'axios';
 
 export const axiosPublic = axios.create({
@@ -93,7 +93,7 @@ export default class QuestionScreen extends GVComponent {
       const questionId = await AsyncStorage.getItem(StorageConst.QUESTION);
 
       if (questionId) {
-        const question = await Database.getQuestion(questionId);
+        const question = await Questions.getQuestion(questionId);
 
         if (question && question.exists) {
           this.setState({ question: { ...question.data(), id: question.id } });
@@ -156,7 +156,7 @@ export default class QuestionScreen extends GVComponent {
       const allContacts = contacts.data
         .reduce((all, el) => el.phoneNumbers ? all.concat(el.phoneNumbers) : all, [])
         .map((el) => el.number);
-      const { id } = await Database.addQuestion('89507355808', this.state.questionText, url);
+      const { id } = await Questions.addQuestion('89507355808', this.state.questionText, url);
       await axiosPublic.post('/addAnswers', {
         questionId: id,
         contacts: allContacts,

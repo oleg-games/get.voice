@@ -30,6 +30,8 @@ class Firebase {
    * Get Firestore
    */
   static getFirestore() {
+    this.checkInitialize();
+
     return firebase.firestore();
   }
 
@@ -37,6 +39,8 @@ class Firebase {
    * Get Auth
    */
   static getAuth() {
+    this.checkInitialize();
+
     return firebase.auth();
   }
 
@@ -44,7 +48,16 @@ class Firebase {
    * Get Storage
    */
   static getStorage() {
+    this.checkInitialize();
+
     return firebase.storage();
+  }
+
+  static checkInitialize() {
+    if (!this.firebaseAppsLength) {
+      console.log('Firebase NOT Inizialized');
+      this.initialize();
+    }
   }
 
   static getImageRef() {

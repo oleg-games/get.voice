@@ -19,7 +19,7 @@ import {
 import Standart from '@styles/standart';
 import StorageConst from '@constants/Storage';
 
-import Database from '@services/dbService';
+import {Questions, Auth, FirestoreHelper} from '@services';
 export default class MyQuestionsScreen extends GVComponent {
 
   constructor(props) {
@@ -44,9 +44,9 @@ export default class MyQuestionsScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
-      const questionsSnapshot = await Database.getQuestionsByPhone('89507355808');
+      const questionsSnapshot = await Questions.getQuestionsByPhone('89507355808');
       const items = questionsSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-      var user = firebase.auth().currentUser;
+      var user = Auth.getAuth().currentUser;
 
       if (user) {
         // User is signed in.
@@ -138,7 +138,7 @@ export default class MyQuestionsScreen extends GVComponent {
   _fillData = async () => {
     try {
       this._isLoading(true);
-      await Database.initDatabase();
+      await FirestoreHelper.fillData();
     } catch (error) {
       console.log('error loading items', error);
       alert('error loading items', error);
@@ -148,7 +148,7 @@ export default class MyQuestionsScreen extends GVComponent {
   };
 
   _signOut = () => {
-    Database.getAuth().signOut();
+    Auth.getAuth().signOut();
     const { navigate } = this.props.navigation;
     navigate('Auth')
   };

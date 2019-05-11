@@ -3,7 +3,7 @@ import GVComponent from '@components/GVComponent';
 import { AsyncStorage, Image } from 'react-native';
 import { DeckSwiper, Container, Row, Grid, Header, Icon, Content, List, ListItem, Card, CardItem, Thumbnail, Text, Left, Body, Right, Button } from 'native-base';
 import Standart from '@styles/standart';
-import Database from '@services/dbService';
+import { Answers } from '@services';
 
 export default class MyAnswersScreen extends GVComponent {
 
@@ -30,7 +30,7 @@ export default class MyAnswersScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
-      const items = await Database.getAnsersNotEmptyTextByToPhone('89507355808');
+      const items = await Answers.getAnsersNotEmptyTextByToPhone('89507355808');
       this.setState({ items });
     } catch (error) {
       console.log('error loading items', error);

@@ -7,7 +7,7 @@ import { PRIMARY_STANDART_MARGIN } from '@styles/common.js';
 import Standart from '@styles/standart.js';
 import StorageConst from '@constants/Storage';
 // At the top of your file
-import Database from '@services/dbService';
+import { Answers } from '@services';
 
 export default class AnswerScreen extends GVComponent {
 
@@ -116,7 +116,7 @@ export default class AnswerScreen extends GVComponent {
       const answerId = await AsyncStorage.getItem(StorageConst.ANSWER);
       // //async to get answer info
       if (answerId) {
-        const answer = await Database.getAnswer(answerId);
+        const answer = await Answers.getAnswer(answerId);
         if (answer) {
           console.log({ answer });
           this.setState({ answer });
@@ -185,7 +185,7 @@ export default class AnswerScreen extends GVComponent {
         data.image = url;
       }
       console.log('data', data)
-      await Database.updateAnswer(this.state.answer.id, data);
+      await Answers.updateAnswer(this.state.answer.id, data);
       console.log('Done')
       // TODO
       // await axiosPublic.post('/addAnswers', {

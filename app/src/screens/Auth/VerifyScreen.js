@@ -41,7 +41,7 @@ import Standart from '@styles/standart.js';
 
 // import Form from 'react-native-form';
 // import CountryPicker from 'react-native-country-picker-modal';
-import Database from '@services/dbService';
+import { Auth } from '@services';
 import { Linking, WebBrowser } from 'expo'
 
 const captchaUrl = `https://get-voice-4d167.firebaseapp.com/?appurl=${Linking.makeUrl('')}`
@@ -131,8 +131,7 @@ export default class Verify extends GVComponent {
         callingCode: '7'
       }
     };
-    Database.getDatabase();
-    Database.getAuth().onAuthStateChanged(user => {
+    Auth.getAuth().onAuthStateChanged(user => {
       this.setState({ user })
     })
   }
@@ -174,7 +173,7 @@ export default class Verify extends GVComponent {
       }
 
       try {
-        const confirmationResult = await Database.getAuth().signInWithPhoneNumber(`+${country.callingCode}${phoneNumber}`, captchaVerifier)
+        const confirmationResult = await Auth.getAuth().signInWithPhoneNumber(`+${country.callingCode}${phoneNumber}`, captchaVerifier)
         this.setState({ confirmationResult })
         setTimeout(() => {
           Alert.alert('Sent!', "We've sent you a verification code", [{

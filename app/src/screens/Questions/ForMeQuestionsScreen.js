@@ -5,7 +5,7 @@ import { Row, Grid, Header, Icon, Content, List, ListItem, Thumbnail, Text, Left
 // At the top of your file
 import Standart from '@styles/standart';
 import StorageConst from '@constants/Storage';
-import Database from '@services/dbService';
+import { Answers } from '@services';
 
 export default class ForMeQuestionsScreen extends GVComponent {
 
@@ -32,7 +32,7 @@ export default class ForMeQuestionsScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
-      const items = await Database.getAnsersEmptyTextByToPhone('89507355808');
+      const items = await Answers.getAnsersEmptyTextByToPhone('89507355808');
       this.setState({ items });
     } catch (error) {
       console.log('error loading items', error);

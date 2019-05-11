@@ -7,7 +7,7 @@ import {
     Spinner
 } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
-import Database from '../services/dbService';
+import { Storage } from '@/services';
 import uuid from 'uuid';
 import Standart from '@styles/standart';
 
@@ -116,7 +116,7 @@ export default class GVComponent extends React.Component {
             xhr.send(null);
         });
 
-        var uploadTask = Database
+        var uploadTask = Storage
             .imageRef
             .child(uuid.v4())
             .put(blob);
@@ -132,10 +132,10 @@ export default class GVComponent extends React.Component {
             console.log('Upload is ' + progress + '% done');
             this.setState({ progress: progress || 0 });
             switch (snapshot.state) {
-                case Database.firebase.storage.TaskState.PAUSED: // or 'paused'
+                case Storage.instanse.TaskState.PAUSED: // or 'paused'
                     console.log('Upload is paused');
                     break;
-                case Database.firebase.storage.TaskState.RUNNING: // or 'running'
+                case Storage.instanse.TaskState.RUNNING: // or 'running'
                     console.log('Upload is running');
                     break;
             }

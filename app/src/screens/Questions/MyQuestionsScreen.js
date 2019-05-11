@@ -46,6 +46,15 @@ export default class MyQuestionsScreen extends GVComponent {
       this._isLoading(true);
       const questionsSnapshot = await Database.getQuestionsByPhone('89507355808');
       const items = questionsSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      var user = firebase.auth().currentUser;
+
+      if (user) {
+        // User is signed in.
+        console.log('user sign', user)
+      } else {
+        console.log('user not sign', user)
+        // No user is signed in.
+      }
 
       this.setState({ items });
     } catch (error) {
@@ -98,6 +107,17 @@ export default class MyQuestionsScreen extends GVComponent {
               <Text> Fill DB </Text>
             </Button>
           </Row>
+          <Row style={Standart.buttonRow}>
+            <Button
+              iconLeft
+              block
+              primary
+              style={Standart.button}
+              onPress={this._signOut}>
+              <Icon ios="ios-person-add" android="md-person-add" />
+              <Text> Log out </Text>
+            </Button>
+          </Row>
         </Grid>
       </Content>);
   };
@@ -125,5 +145,11 @@ export default class MyQuestionsScreen extends GVComponent {
     } finally {
       this._isLoading(false);
     }
+  };
+
+  _signOut = () => {
+    Database.getAuth().signOut();
+    const { navigate } = this.props.navigation;
+    navigate('Auth')
   };
 }

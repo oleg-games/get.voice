@@ -1,170 +1,34 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
-// // import {
-// //   StyleSheet,
-// //   Text,
-// //   TextInput,
-// //   TouchableOpacity,
-// //   View,
-// //   Platform,
-// //   Alert,
-// //   AsyncStorage,
-// // } from 'react-native';
-
-// // import Frisbee from 'frisbee';
-// import Spinner from 'react-native-loading-spinner-overlay';
-// import Form from 'react-native-form';
-// import CountryPicker from 'react-native-country-picker-modal';
-// // import axios from 'axios'
-
-// // const api = new Frisbee({
-// //   baseURI: 'http://localhost:3000',
-// //   headers: {
-// //     'Accept': 'application/json',
-// //     'Content-Type': 'application/json'
-// //   }
-// // });
-// import { Text, View, ScrollView, TextInput, Button } from 'react-native'
-// import { Linking, WebBrowser } from 'expo'
-// // import firebase from 'firebase/app'
-// import 'firebase/auth'
-// import Database from '@services/dbService';
-
-// const captchaUrl = `https://get-voice-4d167.firebaseapp.com/?appurl=${Linking.makeUrl('')}`
-// // const captchaUrl = `https://workers-ef768.firebaseapp.com/captcha.html?appurl=${Linking.makeUrl('')}`
-
-// export default class Verify extends Component {
-
-//   constructor(props) {
-//     super(props)
-//     this.state = {
-//       user: undefined,
-//       phone: '',
-//       confirmationResult: undefined,
-//       code: ''
-//     }
-//     Database.getDatabase();
-//     Database.getAuth().onAuthStateChanged(user => {
-//       this.setState({ user })
-//     })
-//   }
-
-//   onPhoneChange = (phone) => {
-//     this.setState({ phone })
-//   }
-//   onPhoneComplete = async () => {
-//     let token = null
-//     const listener = ({ url }) => {
-//       WebBrowser.dismissBrowser()
-//       const tokenEncoded = Linking.parse(url).queryParams['token']
-//       if (tokenEncoded)
-//         token = decodeURIComponent(tokenEncoded)
-//     }
-//     Linking.addEventListener('url', listener)
-//     await WebBrowser.openBrowserAsync(captchaUrl)
-//     Linking.removeEventListener('url', listener)
-//     if (token) {
-//       const { phone } = this.state
-//       //fake firebase.auth.ApplicationVerifier
-//       //fake Database.getAuth().ApplicationVerifier
-//       const captchaVerifier = {
-//         type: 'recaptcha',
-//         verify: () => Promise.resolve(token)
-//       }
-//       try {
-//         const confirmationResult = await Database.getAuth().signInWithPhoneNumber(phone, captchaVerifier)
-//         this.setState({ confirmationResult })
-//       } catch (e) {
-//         console.warn(e)
-//       }
-
-//     }
-//   }
-//   onCodeChange = (code) => {
-//     this.setState({ code })
-//   }
-//   onSignIn = async () => {
-//     const { confirmationResult, code } = this.state
-//     try {
-//       await confirmationResult.confirm(code)
-//     } catch (e) {
-//       console.warn(e)
-//     }
-//     this.reset()
-//   }
-//   reset = () => {
-//     this.setState({
-//       phone: '',
-//       phoneCompleted: false,
-//       confirmationResult: undefined,
-//       code: ''
-//     })
-//   }
-
-//   render() {
-//     if (this.state.user)
-//       return (
-//         this.props.navigation.navigate("Main")
-//       )
-
-//     if (!this.state.confirmationResult)
-//       return (
-//         <ScrollView style={{ padding: 20, marginTop: 20 }}>
-//           <TextInput
-//             value={this.state.phone}
-//             onChangeText={this.onPhoneChange}
-//             keyboardType="phone-pad"
-//             placeholder="Your phone"
-//           />
-//           <Button
-//             onPress={this.onPhoneComplete}
-//             title="Next"
-//           />
-//         </ScrollView>
-//       )
-//     else
-//       return (
-//         <ScrollView style={{ padding: 20, marginTop: 20 }}>
-//           <TextInput
-//             value={this.state.code}
-//             onChangeText={this.onCodeChange}
-//             keyboardType="numeric"
-//             placeholder="Code from SMS"
-//           />
-//           <Button
-//             onPress={this.onSignIn}
-//             title="Sign in"
-//           />
-//         </ScrollView>
-//       )
-//   }
-// }
-
-// AppRegistry.registerComponent('example', () => example);
-
-
-import React, { Component } from 'react';
+import React from 'react';
 import GVComponent from '@components/GVComponent';
 
 import {
   AppRegistry,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
   Platform,
   Alert,
   AsyncStorage,
+  ScrollView,
 } from 'react-native';
 
-import { Button } from 'native-base';
+import {
+  Row,
+  Grid,
+  Icon,
+  Content,
+  List,
+  ListItem,
+  Thumbnail,
+  Text,
+  Left,
+  Body,
+  Right,
+  Button,
+} from 'native-base';
+import { PRIMARY_STANDART_MARGIN } from '@styles/common.js';
 
-import Spinner from 'react-native-loading-spinner-overlay';
 import Form from 'react-native-form';
 import CountryPicker from 'react-native-country-picker-modal';
 // import { parsePhoneNumberFromString, parsePhoneNumber, ParseError } from 'libphonenumber-js'
@@ -174,6 +38,14 @@ import CountryPicker from 'react-native-country-picker-modal';
 // import phoneFormatter from 'phone';
 // import PhoneNumberA from 'awesome-phonenumber';
 import Standart from '@styles/standart.js';
+
+// import Form from 'react-native-form';
+// import CountryPicker from 'react-native-country-picker-modal';
+import Database from '@services/dbService';
+import { Linking, WebBrowser } from 'expo'
+
+const captchaUrl = `https://get-voice-4d167.firebaseapp.com/?appurl=${Linking.makeUrl('')}`
+// // const captchaUrl = `https://workers-ef768.firebaseapp.com/captcha.html?appurl=${Linking.makeUrl('')}`
 
 const MAX_LENGTH_CODE = 6;
 const MAX_LENGTH_NUMBER = 20;
@@ -193,32 +65,32 @@ const styles = StyleSheet.create({
     flex: 1
   },
   header: {
-    textAlign: 'center',
-    marginTop: 60,
-    fontSize: 22,
-    margin: 20,
-    color: '#4A4A4A',
+    flex: 0.1,
+    margin: PRIMARY_STANDART_MARGIN,
   },
   form: {
-    margin: 20
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    margin: PRIMARY_STANDART_MARGIN,
   },
   textInput: {
     padding: 0,
     margin: 0,
     flex: 1,
-    fontSize: 20,
-    color: brandColor
+    // fontSize: 20,
+    // color: brandColor
   },
   button: {
     marginTop: 20,
     height: 50,
-    backgroundColor: brandColor,
+    // backgroundColor: brandColor,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 5,
   },
   buttonText: {
-    color: '#fff',
+    // color: '#fff',
     fontSize: 16,
     fontWeight: 'bold'
   },
@@ -237,10 +109,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   callingCodeText: {
-    fontSize: 20,
-    color: brandColor,
-    fontWeight: 'bold',
-    paddingRight: 10
+    // fontSize: 20,
+    // color: brandColor,
+    // fontWeight: 'bold',
+    paddingRight: 20
   }
 });
 
@@ -249,111 +121,95 @@ export default class Verify extends GVComponent {
   constructor(props) {
     super(props);
     this.state = {
+      //       user: undefined,
+      phone: '',
+      confirmationResult: undefined,
+      //       code: ''
       enterCode: false,
-      spinner: false,
       country: {
         cca2: 'RU',
         callingCode: '7'
       }
     };
+    Database.getDatabase();
+    Database.getAuth().onAuthStateChanged(user => {
+      this.setState({ user })
+    })
   }
 
-  _getCode = () => {
+  reset = () => {
+    this.setState({
+      phone: '',
+      phoneCompleted: false,
+      confirmationResult: undefined,
+      code: ''
+    })
+  }
 
-    this.setState({ spinner: true });
+  _getCode = async () => {
+    console.log('test')
+    const { phoneNumber } = this.refs.form.getValues();
+    console.log('phoneNumber', phoneNumber)
 
-    setTimeout(async () => {
+    this.setState({ loading: true });
+
+    let token = null
+    const listener = ({ url }) => {
+      WebBrowser.dismissBrowser()
+      const tokenEncoded = Linking.parse(url).queryParams['token']
+      if (tokenEncoded)
+        token = decodeURIComponent(tokenEncoded)
+    }
+    Linking.addEventListener('url', listener)
+    await WebBrowser.openBrowserAsync(captchaUrl)
+    Linking.removeEventListener('url', listener)
+
+    if (token) {
+      const { country } = this.state;
+      //fake firebase.auth.ApplicationVerifier
+      //fake Database.getAuth().ApplicationVerifier
+      const captchaVerifier = {
+        type: 'recaptcha',
+        verify: () => Promise.resolve(token)
+      }
 
       try {
-
-        // const res = await axios.post('/v1/verifications', {
-        //     body: {
-        //       ...this.refs.form.getValues(),
-        //       ...this.state.country
-        //     }
-        // });
-        const { phoneNumber } = this.refs.form.getValues();
-        const res = {};
-        // const res = await api.post('/v1/verifications', {
-        //   body: {
-        //     ...this.refs.form.getValues(),
-        //     ...this.state.country
-        //   }
-        // });
-
-        if (res.err) throw res.err;
-
-        await AsyncStorage.setItem('phoneNumber', phoneNumber);
-
-        this.setState({
-          spinner: false,
-          enterCode: true,
-          verification: res.body
-        });
-        this.refs.form.refs.textInput.setNativeProps({ text: '' });
-
+        const confirmationResult = await Database.getAuth().signInWithPhoneNumber(`+${country.callingCode}${phoneNumber}`, captchaVerifier)
+        this.setState({ confirmationResult })
         setTimeout(() => {
           Alert.alert('Sent!', "We've sent you a verification code", [{
             text: 'OK',
             onPress: () => this.refs.form.refs.textInput.focus()
           }]);
         }, 100);
+        this.setState({
+          loading: false,
+          enterCode: true,
+        });
 
-      } catch (err) {
-        // <https://github.com/niftylettuce/react-native-loading-spinner-overlay/issues/30#issuecomment-276845098>
-        this.setState({ spinner: false });
-        setTimeout(() => {
-          Alert.alert('Oops!', err.message);
-        }, 100);
+
+      } catch (e) {
+        console.warn(e)
+      } finally {
+        this.setState({ loading: false });
       }
-
-    }, 100);
-
+    }
   }
 
-  _verifyCode = () => {
-
-    this.setState({ spinner: true });
-
-    setTimeout(async () => {
-
-      try {
-
-        const res = {};
-
-        // const res = await axios.put('/v1/verifications', {
-        //   body: {
-        //     ...this.refs.form.getValues(),
-        //     ...this.state.country
-        //   }
-        // });
-        // const res = await api.put('/v1/verifications', {
-        //   body: {
-        //     ...this.refs.form.getValues(),
-        //     ...this.state.country
-        //   }
-        // });
-
-        if (res.err) throw res.err;
-
-        this.refs.form.refs.textInput.blur();
-        // <https://github.com/niftylettuce/react-native-loading-spinner-overlay/issues/30#issuecomment-276845098>
-        this.setState({ spinner: false });
-        setTimeout(() => {
-          Alert.alert('Success!', 'You have successfully verified your phone number');
-          this.props.navigation.navigate('App');
-        }, 100);
-
-      } catch (err) {
-        // <https://github.com/niftylettuce/react-native-loading-spinner-overlay/issues/30#issuecomment-276845098>
-        this.setState({ spinner: false });
-        setTimeout(() => {
-          Alert.alert('Oops!', err.message);
-        }, 100);
-      }
-
-    }, 100);
-
+  _verifyCode = async () => {
+    this.setState({ loading: true });
+    try {
+      const { confirmationResult } = this.state
+      const { code } = this.refs.form.getValues();
+      await confirmationResult.confirm(code + '')
+      this.reset()
+      this.setState({ loading: false });
+      Alert.alert('Success!', 'You have successfully verified your phone number');
+      this.props.navigation.navigate('App');
+    } catch (err) {
+      this.setState({ loading: false });
+      Alert.alert('Oops!', err.message);
+    }
   }
 
   _onChangeText = (val) => {
@@ -373,60 +229,9 @@ export default class Verify extends GVComponent {
   }
 
   _getValidPhoneNumber() {
-    
+
   }
 
-  _getSubmitAction1 = () => {
-    // const { phoneNumber } = this.refs.form.getValues();
-    // console.log('phoneNumber', phoneNumber)
-    // // phoneFormatter()
-    // console.log('formatter', phoneFormatter('+8' + phoneNumber));
-    // const a = new PhoneNumberA('phoneNumber')
-    // console.log('PhoneNumberA', a.isValid());
-    // const phoneUtil = googleLib.PhoneNumberUtil.getInstance();
-    // console.log('parseIncompletePhoneNumber', formatIncompletePhoneNumber('89507355808'))
-    // const asYouType = new AsYouType()
-    // // asYouType.input('89507355808')
-    // console.log(asYouType.input('+79507355808'))
-    // console.log(asYouType.getNumber().country)
-    // console.log(asYouType.getNumber().number)
-    // console.log(asYouType.getTemplate())
-    // // console.log(tel.getNationalNumber())
-    // // try {
-    // //   // const phone = parsePhoneNumber('Call: (213) 373-42-53 ext. 1234.')
-    // //   const phone = parsePhoneNumberFromString('Phone: 8 (800) 555 35 35.');
-    // //   console.log('phone', phone)
-    // //   console.log('phone', parseMobile('+79507355808').isValid())
-    // //   // const phone = parsePhoneNumber('Call: (213) 373-42-53 ext. 1234.')
-    // //   if (phone) {
-    // //     console.log('phone.isValid() ', phone.isValid())
-    // //     phone.country === 'RU'
-    // //     phone.number === '+78005553535'
-    // //     phone.isValid() === true
-    // //     phone.getType() === 'TOLL_FREE'
-    // //   }
-    // // } catch (error) {
-    // //   if (error instanceof ParseError) {
-    // //     // Not a phone number, non-existent country, etc.
-    // //     console.log(error.message)
-    // //   } else {
-    // //     throw error
-    // //   }
-    // // }
-
-
-    // // const phone = parsePhoneNumber(phoneNumber + '')
-    // // console.log('this.state.enterCode', this.state.enterCode)
-    // // console.log('phone', phone)
-
-    // // if (phone) {
-    // //   console.log('phone.isValid() ', phone.isValid())
-    // //   phone.country === 'RU'
-    // //   phone.number === '+78005553535'
-    // //   phone.isValid() === true
-    // //   phone.getType() === 'TOLL_FREE'
-    // // }
-  }
 
   _changeCountry = (country) => {
     this.setState({ country });
@@ -487,8 +292,7 @@ export default class Verify extends GVComponent {
 
   }
 
-  render() {
-
+  _renderContent() {
     let headerText = `What's your ${this.state.enterCode ? 'verification code' : 'phone number'}?`
     let buttonText = this.state.enterCode ? 'Verify confirmation code' : 'Send confirmation code';
     let textStyle = this.state.enterCode ? {
@@ -496,60 +300,58 @@ export default class Verify extends GVComponent {
       textAlign: 'center',
       fontSize: 40,
       fontWeight: 'bold',
-      // fontFamily: 'Courier'
     } : {};
 
     return (
+      <Content padder contentContainerStyle={Standart.container}>
+        <Grid>
+          <Row style={Standart.container}>
+            <Text style={styles.header}>{headerText}</Text>
 
-      <View style={styles.container}>
+            <Form ref={'form'} style={styles.form}>
 
-        <Text style={styles.header}>{headerText}</Text>
+              <View style={{ flexDirection: 'row' }}>
 
-        <Form ref={'form'} style={styles.form}>
+                {this._renderCountryPicker()}
+                {this._renderCallingCode()}
 
-          <View style={{ flexDirection: 'row' }}>
+                <TextInput
+                  ref={'textInput'}
+                  name={this.state.enterCode ? 'code' : 'phoneNumber'}
+                  type={'TextInput'}
+                  underlineColorAndroid={'transparent'}
+                  autoCapitalize={'none'}
+                  autoCorrect={false}
+                  onChangeText={this._onChangeText}
+                  placeholder={this.state.enterCode ? '_ _ _ _ _ _' : 'Phone Number'}
+                  keyboardType={Platform.OS === 'ios' ? 'number-pad' : 'numeric'}
+                  style={[styles.textInput, textStyle]}
+                  returnKeyType='go'
+                  autoFocus
+                  // placeholderTextColor={brandColor}
+                  // selectionColor={brandColor}
+                  maxLength={this.state.enterCode ? 6 : 20}
+                  onSubmitEditing={this._getSubmitAction} />
 
-            {this._renderCountryPicker()}
-            {this._renderCallingCode()}
+              </View>
 
-            <TextInput
-              ref={'textInput'}
-              name={this.state.enterCode ? 'code' : 'phoneNumber'}
-              type={'TextInput'}
-              underlineColorAndroid={'transparent'}
-              autoCapitalize={'none'}
-              autoCorrect={false}
-              onChangeText={this._onChangeText}
-              placeholder={this.state.enterCode ? '_ _ _ _ _ _' : 'Phone Number'}
-              keyboardType={Platform.OS === 'ios' ? 'number-pad' : 'numeric'}
-              style={[styles.textInput, textStyle]}
-              returnKeyType='go'
-              autoFocus
-              placeholderTextColor={brandColor}
-              selectionColor={brandColor}
-              maxLength={this.state.enterCode ? 6 : 20}
-              onSubmitEditing={this._getSubmitAction} />
+              {this._renderFooter()}
 
-          </View>
+            </Form>
 
-          <Button style={Standart.button} onPress={this._getSubmitAction}>
-            <Text style={styles.buttonText}>{buttonText}</Text>
-          </Button>
-          <TouchableOpacity style={styles.button} onPress={this._getSubmitAction1}>
-            <Text style={styles.buttonText}>Validate</Text>
-          </TouchableOpacity>
-
-          {this._renderFooter()}
-
-        </Form>
-
-        <Spinner
-          visible={this.state.spinner}
-          textContent={'One moment...'}
-          textStyle={{ color: '#fff' }} />
-
-      </View>
-
-    );
-  }
+          </Row>
+          <Row style={Standart.buttonRow}>
+            <Button
+              iconLeft
+              block
+              primary
+              style={Standart.button}
+              onPress={this._getSubmitAction}>
+              <Icon ios="ios-person-add" android="md-person-add" />
+              <Text>{buttonText}</Text>
+            </Button>
+          </Row>
+        </Grid>
+      </Content>);
+  };
 }

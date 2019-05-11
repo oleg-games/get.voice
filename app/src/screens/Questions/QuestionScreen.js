@@ -40,7 +40,7 @@ export default class QuestionScreen extends GVComponent {
       <Content padder contentContainerStyle={Standart.container}>
         <Grid>
           <Row style={Standart.container}>
-            <Form ref={'form'} style={{ flex: 1 }}>
+            <Form style={{ flex: 1 }}>
               <Label
                 style={this.state.question ? Standart.questionText : Standart.NONE}>
                 {this.state.question && this.state.question.text}

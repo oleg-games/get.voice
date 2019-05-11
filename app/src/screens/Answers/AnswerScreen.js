@@ -42,7 +42,7 @@ export default class AnswerScreen extends GVComponent {
       <Content padder contentContainerStyle={Standart.container}>
         <Grid>
           <Row style={Standart.container}>
-            <Form ref={'form'} style={{ flex: 1 }}>
+            <Form style={{ flex: 1 }}>
               <Label
                 style={Standart.answerText}>
                 {this.state.answer && this.state.answer.questionRef.text}

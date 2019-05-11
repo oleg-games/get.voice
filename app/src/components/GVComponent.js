@@ -9,6 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Database from '../services/dbService';
 import uuid from 'uuid';
+import Standart from '@styles/standart';
 
 export default class GVComponent extends React.Component {
 
@@ -40,7 +41,6 @@ export default class GVComponent extends React.Component {
         }
         this._setDefaultState();
         await this._loadParams();
-        console.log('test')
     }
 
     _setDefaultState() {
@@ -75,8 +75,8 @@ export default class GVComponent extends React.Component {
 
     _renderLoader() {
         return (
-            <Content>
-                <Spinner color='blue' />
+            <Content padder contentContainerStyle={Standart.container}>
+                <Spinner style={{ flex: 1 }} color='blue' />
             </Content>
         );
     }
@@ -94,7 +94,7 @@ export default class GVComponent extends React.Component {
     }
 
     _loadParams = async () => {
-
+        this.setState({ loading: false });
     }
 
     _uploadImageAsync = async (uri) => {

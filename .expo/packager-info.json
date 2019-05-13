@@ -1,9 +1,9 @@
 {
   "packagerPort": 19001,
-  "packagerPid": 9904,
+  "packagerPid": 22052,
   "expoServerNgrokUrl": "https://6i-p99.anonymous.get-voice.exp.direct",
   "packagerNgrokUrl": "https://packager.6i-p99.anonymous.get-voice.exp.direct",
-  "ngrokPid": 8020,
+  "ngrokPid": 22456,
   "devToolsPort": 19002,
   "expoServerPort": 19000,
   "webpackServerPort": null

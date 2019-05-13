@@ -156,7 +156,7 @@ export default class QuestionScreen extends GVComponent {
       const allContacts = contacts.data
         .reduce((all, el) => el.phoneNumbers ? all.concat(el.phoneNumbers) : all, [])
         .map((el) => el.number);
-      const { id } = await Questions.addQuestion('89507355808', this.state.questionText, url);
+      const { id } = await Questions.addQuestion(this.state.phoneNumber, this.state.questionText, url);
       await axiosPublic.post('/addAnswers', {
         questionId: id,
         contacts: allContacts,

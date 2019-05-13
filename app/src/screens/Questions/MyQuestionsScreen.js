@@ -19,7 +19,8 @@ import {
 import Standart from '@styles/standart';
 import StorageConst from '@constants/Storage';
 
-import {Questions, Auth, FirestoreHelper} from '@services';
+import { Questions, Auth, FirestoreHelper } from '@services';
+
 export default class MyQuestionsScreen extends GVComponent {
 
   constructor(props) {
@@ -44,7 +45,7 @@ export default class MyQuestionsScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
-      const questionsSnapshot = await Questions.getQuestionsByPhone('89507355808');
+      const questionsSnapshot = await Questions.getQuestionsByPhone(this.state.phoneNumber);
       const items = questionsSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       var user = Auth.getAuth().currentUser;
 
@@ -70,6 +71,7 @@ export default class MyQuestionsScreen extends GVComponent {
       <Content padder contentContainerStyle={Standart.container}>
         <Grid>
           <Row style={Standart.container}>
+            <Text>{this.state.phoneNumber}</Text>
             <List
               dataArray={this.state.items}
               renderRow={(item) =>
@@ -138,7 +140,7 @@ export default class MyQuestionsScreen extends GVComponent {
   _fillData = async () => {
     try {
       this._isLoading(true);
-      await FirestoreHelper.fillData();
+      await FirestoreHelper.fillData(this.state.phoneNumber);
     } catch (error) {
       console.log('error loading items', error);
       alert('error loading items', error);

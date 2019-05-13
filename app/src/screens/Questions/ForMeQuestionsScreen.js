@@ -32,7 +32,7 @@ export default class ForMeQuestionsScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
-      const items = await Answers.getAnsersEmptyTextByToPhone('89507355808');
+      const items = await Answers.getAnsersEmptyTextByToPhone(this.state.phoneNumber);
       this.setState({ items });
     } catch (error) {
       console.log('error loading items', error);

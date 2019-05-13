@@ -1,9 +1,8 @@
+import Firebase from '@config/firebase';
+
 /**
  * @class Storage
  */
-
-import Firebase from '@config/firebase';
-
 export default class Storage {
 
     static get instanse() {

@@ -1,4 +1,4 @@
-{
+export default (phone) => ({
     "my": [
         {
             "image": "https://reactnativecode.com/wp-content/uploads/2017/05/react_thumb_install.png",
@@ -20,7 +20,7 @@
         {
             "text": "",
             "image": "",
-            "toPhone": "89507355808",
+            "toPhone": phone,
             "question": {
                 "image": "http://www.pngmart.com/files/4/Mario-Bros-PNG-HD.png",
                 "text": "При попытке войти в EXLoader пишет Not valid password, что делать ? Забыл пароль что делать? Как сбросить пароль?",
@@ -35,7 +35,7 @@
             },
             "text": "",
             "image": "",
-            "toPhone": "89507355808"
+            "toPhone": phone
         },
         {
             "question": {
@@ -45,7 +45,7 @@
             },
             "image": "",
             "text": "",
-            "toPhone": "89507355808"
+            "toPhone": phone
         }
     ]
-}
+})

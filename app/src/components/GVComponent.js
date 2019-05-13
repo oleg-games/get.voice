@@ -1,11 +1,7 @@
 import React from 'react';
 import { View, YellowBox, StyleSheet } from 'react-native';
 import { AppLoading, Font } from 'expo';
-import {
-    Container,
-    Content,
-    Spinner
-} from 'native-base';
+import { Container, Content, Spinner } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
 import { Storage } from '@/services';
 import uuid from 'uuid';
@@ -54,7 +50,6 @@ export default class GVComponent extends React.Component {
         if (!fontLoaded) {
             return <AppLoading />;
         }
-
         return (
             <Container>
                 {imgSource !== '' && !!uploading && !!progress && (

@@ -30,7 +30,7 @@ export default class MyAnswersScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
-      const items = await Answers.getAnsersNotEmptyTextByFromPhone('89507355808');
+      const items = await Answers.getAnsersNotEmptyTextByFromPhone(this.state.phoneNumber);
       this.setState({ items });
     } catch (error) {
       console.log('error loading items', error);

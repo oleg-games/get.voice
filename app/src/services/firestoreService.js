@@ -1,9 +1,8 @@
-/**
- * @class Database
- */
-
 import Firebase from '@config/firebase';
 
+/**
+ * @class Firestore
+ */
 export default class Firestore {
 
     /**

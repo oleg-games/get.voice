@@ -2,15 +2,12 @@ import React from 'react';
 import GVComponent from '@components/GVComponent';
 
 import {
-  AppRegistry,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   View,
   Platform,
   Alert,
   AsyncStorage,
-  ScrollView,
 } from 'react-native';
 
 import {
@@ -18,18 +15,13 @@ import {
   Grid,
   Icon,
   Content,
-  List,
-  ListItem,
-  Thumbnail,
   Text,
-  Left,
-  Body,
-  Right,
   Button,
 } from 'native-base';
 import { PRIMARY_STANDART_MARGIN } from '@styles/common.js';
 
 import Form from 'react-native-form';
+import StorageConst from '@constants/Storage';
 import CountryPicker from 'react-native-country-picker-modal';
 // import { parsePhoneNumberFromString, parsePhoneNumber, ParseError } from 'libphonenumber-js'
 // import { parsePhoneNumberFromString as parseMobile } from 'libphonenumber-js/mobile'
@@ -41,7 +33,7 @@ import Standart from '@styles/standart.js';
 
 // import Form from 'react-native-form';
 // import CountryPicker from 'react-native-country-picker-modal';
-import { Auth } from '@services';
+import { Auth, Users } from '@services';
 import { Linking, WebBrowser } from 'expo'
 
 const captchaUrl = `https://get-voice-4d167.firebaseapp.com/?appurl=${Linking.makeUrl('')}`
@@ -146,33 +138,30 @@ export default class Verify extends GVComponent {
   }
 
   _getCode = async () => {
-    console.log('test')
     const { phoneNumber } = this.refs.form.getValues();
-    console.log('phoneNumber', phoneNumber)
+    const { country } = this.state;
 
-    this.setState({ loading: true });
+    this.setState({ loading: true, phone: `${country.callingCode}${phoneNumber}` });
 
-    let token = null
-    const listener = ({ url }) => {
-      WebBrowser.dismissBrowser()
-      const tokenEncoded = Linking.parse(url).queryParams['token']
-      if (tokenEncoded)
-        token = decodeURIComponent(tokenEncoded)
-    }
-    Linking.addEventListener('url', listener)
-    await WebBrowser.openBrowserAsync(captchaUrl)
-    Linking.removeEventListener('url', listener)
-
-    if (token) {
-      const { country } = this.state;
-      //fake firebase.auth.ApplicationVerifier
-      //fake Database.getAuth().ApplicationVerifier
-      const captchaVerifier = {
-        type: 'recaptcha',
-        verify: () => Promise.resolve(token)
+    try {
+      let token = null
+      const listener = ({ url }) => {
+        WebBrowser.dismissBrowser()
+        const tokenEncoded = Linking.parse(url).queryParams['token']
+        if (tokenEncoded)
+          token = decodeURIComponent(tokenEncoded)
       }
+      Linking.addEventListener('url', listener)
+      await WebBrowser.openBrowserAsync(captchaUrl)
+      Linking.removeEventListener('url', listener)
 
-      try {
+      if (token) {
+        //fake firebase.auth.ApplicationVerifier
+        //fake Database.getAuth().ApplicationVerifier
+        const captchaVerifier = {
+          type: 'recaptcha',
+          verify: () => Promise.resolve(token)
+        }
         const confirmationResult = await Auth.getAuth().signInWithPhoneNumber(`+${country.callingCode}${phoneNumber}`, captchaVerifier)
         this.setState({ confirmationResult })
         setTimeout(() => {
@@ -185,13 +174,13 @@ export default class Verify extends GVComponent {
           loading: false,
           enterCode: true,
         });
-
-
-      } catch (e) {
-        console.warn(e)
-      } finally {
-        this.setState({ loading: false });
       }
+
+    } catch (e) {
+      console.log(e)
+      Alert.alert(e)
+    } finally {
+      this.setState({ loading: false });
     }
   }
 
@@ -201,12 +190,26 @@ export default class Verify extends GVComponent {
       const { confirmationResult } = this.state
       const { code } = this.refs.form.getValues();
       await confirmationResult.confirm(code + '')
+      if (this.state.phone) {
+        let userInDb = await Users.getUserByPhone(this.state.phone);
+
+        if (!userInDb) {
+          const user = {
+            phone: this.state.phone,
+            smsInvite: true,
+            inSystem: true,
+          }
+
+          userInDb = await Users.addUser(user);
+        }
+
+        await AsyncStorage.setItem(StorageConst.PHONE_NUMBER, userInDb.phone);
+      }
       this.reset()
       this.setState({ loading: false });
       Alert.alert('Success!', 'You have successfully verified your phone number');
       this.props.navigation.navigate('App');
     } catch (err) {
-      this.setState({ loading: false });
       Alert.alert('Oops!', err.message);
     }
   }

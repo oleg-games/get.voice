@@ -1,5 +1,8 @@
 import Firestore from './firestoreService';
 
+/**
+ * @class Questions
+ */
 export default class Questions {
 
     /**

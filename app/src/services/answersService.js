@@ -1,6 +1,9 @@
 import Firestore from './firestoreService';
 import Questions from './questionsService';
 
+/**
+ * @class Answers
+ */
 export default class Answers {
 
     /**

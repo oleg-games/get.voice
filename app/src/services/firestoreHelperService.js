@@ -11,10 +11,11 @@ export default class FirestoreHelper {
 
     static async fillData(phone) {
         console.log('Fill Data --->>>>')
+        console.log('For number', phone)
         const questionsMy = questions(phone).my;
         console.log(questionsMy);
         for (const question of questionsMy) {
-            await Questions.addQuestion(this.state.phoneNumber, question.text, question.image);
+            await Questions.addQuestion(phone, question.text, question.image);
         }
 
         const questionsForMe = questions(phone).forMe;

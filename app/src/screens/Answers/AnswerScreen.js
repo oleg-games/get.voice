@@ -154,7 +154,7 @@ export default class AnswerScreen extends GVComponent {
 
   _handleImagePicked = async pickerResult => {
     try {
-      return await this._uploadImageAsync(pickerResult);
+      return await this._uploadImageAsync(this.state.phoneNumber, pickerResult);
     } catch (e) {
       console.log(e);
       alert('Upload failed:', error);

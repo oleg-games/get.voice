@@ -42,6 +42,7 @@ export default class FirestoreHelper {
             };
             await Answers.addAnswer(data);
         }
+
         const answersForMe = answers(phone).forMe;
         console.log(answersForMe);
         for (const answer of answersForMe) {

@@ -4,7 +4,6 @@ import { AppLoading, Font } from 'expo';
 import { Container, Content, Spinner } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
 import { Storage } from '@/services';
-import uuid from 'uuid';
 import Standart from '@styles/standart';
 
 export default class GVComponent extends React.Component {
@@ -92,7 +91,7 @@ export default class GVComponent extends React.Component {
         this.setState({ loading: false });
     }
 
-    _uploadImageAsync = async (uri) => {
+    _uploadImageAsync = async (phone, uri) => {
         this.setState({ uploading: true });
         this.setState({ imgSource: uri.uri });
         this.setState({ progress: 30 });
@@ -112,8 +111,7 @@ export default class GVComponent extends React.Component {
         });
 
         var uploadTask = Storage
-            .imageRef
-            .child(uuid.v4())
+            .getImagePhoneRef(phone)
             .put(blob);
 
         // Register three observers:

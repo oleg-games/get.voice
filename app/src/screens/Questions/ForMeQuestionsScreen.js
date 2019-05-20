@@ -32,6 +32,7 @@ export default class ForMeQuestionsScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
+      // const response = await Axios.get(`/answers/${this.state.phoneNumber}/all/empty/forme`);
       const items = await Answers.getAnsersEmptyTextByToPhone(this.state.phoneNumber);
       this.setState({ items });
     } catch (error) {

@@ -180,12 +180,10 @@ export default class AnswerScreen extends GVComponent {
       const allContacts = contacts.data
         .reduce((all, el) => el.phoneNumbers ? all.concat(el.phoneNumbers) : all, [])
         .map((el) => el.number);
-      let data = { text: this.state.answerText }
-      if (url) {
-        data.image = url;
-      }
-      console.log('data', data)
+      let data = { text: this.state.answerText, image: url }
+
       await Answers.updateAnswer(this.state.answer.id, data);
+      // const response = await Axios.put('/answers', data);
       console.log('Done')
       // TODO
       // await axiosPublic.post('/addAnswers', {

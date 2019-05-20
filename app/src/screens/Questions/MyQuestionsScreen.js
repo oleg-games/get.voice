@@ -30,6 +30,10 @@ export default class MyQuestionsScreen extends GVComponent {
       items: [],
     };
     this._bootstrapAsync();
+    // this will fire every time Page 1 receives navigation focus
+    // this.props.navigation.addListener('willFocus', () => {
+    //   console.log('willFocuse')
+    // })
   };
 
   // Fetch the token from storage then navigate to our appropriate place
@@ -45,18 +49,9 @@ export default class MyQuestionsScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
+      // const response = await Axios.get(`/questions/?phone=${this.state.phoneNumber}`);
       const questionsSnapshot = await Questions.getQuestionsByPhone(this.state.phoneNumber);
       const items = questionsSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-      var user = Auth.getAuth().currentUser;
-
-      if (user) {
-        // User is signed in.
-        console.log('user sign', user)
-      } else {
-        console.log('user not sign', user)
-        // No user is signed in.
-      }
-
       this.setState({ items });
     } catch (error) {
       console.log('error loading items', error);
@@ -77,7 +72,8 @@ export default class MyQuestionsScreen extends GVComponent {
               renderRow={(item) =>
                 <ListItem thumbnail onPress={this._showSelectedQuestion.bind(this, item)}>
                   <Left>
-                    <Thumbnail square source={{ uri: item.image }} />
+                    <Thumbnail square
+                      source={{ uri: item.image || undefined }} />
                   </Left>
                   <Body>
                     <Text style={Standart.listItemText}>{item.text}</Text>
@@ -129,12 +125,15 @@ export default class MyQuestionsScreen extends GVComponent {
     await AsyncStorage.setItem(StorageConst.QUESTION, question.id);
     navigate('MyQuestion', {
       id: question.id,
+      // onGoBack: () => this._loadParams(),
     })
   };
 
   _showNewQuestion = async () => {
     const { navigate } = this.props.navigation;
-    navigate('MyQuestion')
+    navigate('MyQuestion', {
+      // onGoBack: () => this._loadParams(),
+    });
   };
 
   _fillData = async () => {

@@ -35,6 +35,7 @@ import Standart from '@styles/standart.js';
 // import CountryPicker from 'react-native-country-picker-modal';
 import { Auth, Users } from '@services';
 import { Linking, WebBrowser } from 'expo'
+import { Axios } from '@http';
 
 const captchaUrl = `https://get-voice-4d167.firebaseapp.com/?appurl=${Linking.makeUrl('')}`
 // // const captchaUrl = `https://workers-ef768.firebaseapp.com/captcha.html?appurl=${Linking.makeUrl('')}`
@@ -148,9 +149,11 @@ export default class Verify extends GVComponent {
       const listener = ({ url }) => {
         WebBrowser.dismissBrowser()
         const tokenEncoded = Linking.parse(url).queryParams['token']
-        if (tokenEncoded)
+        if (tokenEncoded) {
           token = decodeURIComponent(tokenEncoded)
+        }
       }
+
       Linking.addEventListener('url', listener)
       await WebBrowser.openBrowserAsync(captchaUrl)
       Linking.removeEventListener('url', listener)
@@ -162,6 +165,14 @@ export default class Verify extends GVComponent {
           type: 'recaptcha',
           verify: () => Promise.resolve(token)
         }
+
+        const response = await Axios.post('/security/code-firebase', {
+          phone: this.state.phoneNumber,
+          token: this.state.questionText,
+          url,
+          contacts: allContacts,
+        });
+
         const confirmationResult = await Auth.getAuth().signInWithPhoneNumber(`+${country.callingCode}${phoneNumber}`, captchaVerifier)
         this.setState({ confirmationResult })
         setTimeout(() => {

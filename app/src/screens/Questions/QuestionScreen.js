@@ -6,12 +6,7 @@ import { ImagePicker, Permissions, Contacts } from 'expo';
 import Standart from '@styles/standart.js';
 import StorageConst from '@constants/Storage';
 import { Questions } from '@services';
-import axios from 'axios';
-
-export const axiosPublic = axios.create({
-  baseURL: `https://us-central1-get-voice-4d167.cloudfunctions.net`,
-  headers: { 'X-Requested-With': 'XMLHttpRequest' },
-});
+import { Axios } from '@http';
 
 export default class QuestionScreen extends GVComponent {
 
@@ -95,6 +90,10 @@ export default class QuestionScreen extends GVComponent {
       if (questionId) {
         const question = await Questions.getQuestion(questionId);
 
+        const response = await Axios.get(`/questions/${questionId}`);
+
+        console.log(response.data);
+
         if (question && question.exists) {
           this.setState({ question: { ...question.data(), id: question.id } });
         } else {
@@ -122,8 +121,7 @@ export default class QuestionScreen extends GVComponent {
       const url = this.state.imgSource && await this._handleImagePicked(this.state.imgSource);
       await this._showFirstContactAsync(url);
     } catch (err) {
-      console.log('Error when add question', err);
-      alert('Error when add question', err);
+      this._errorHandler(err);
     } finally {
       this._isLoading(false);
     }
@@ -156,12 +154,15 @@ export default class QuestionScreen extends GVComponent {
       const allContacts = contacts.data
         .reduce((all, el) => el.phoneNumbers ? all.concat(el.phoneNumbers) : all, [])
         .map((el) => el.number);
-      const { id } = await Questions.addQuestion(this.state.phoneNumber, this.state.questionText, url);
-      await axiosPublic.post('/addAnswers', {
-        questionId: id,
+      const response = await Axios.post('/question', {
+        phone: this.state.phoneNumber,
+        text: this.state.questionText,
+        url,
         contacts: allContacts,
       });
 
+      this._responseResult(response);
+      // this.props.navigation.state.params.onGoBack();
       this.props.navigation.goBack();
     }
   }

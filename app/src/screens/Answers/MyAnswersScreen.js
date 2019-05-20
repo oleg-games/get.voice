@@ -30,6 +30,7 @@ export default class MyAnswersScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
+      // const response = await Axios.get(`/answers/${this.state.phoneNumber}/all/notempty/my`);
       const items = await Answers.getAnsersNotEmptyTextByToPhone(this.state.phoneNumber);
       this.setState({ items });
     } catch (error) {

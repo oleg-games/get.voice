@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, YellowBox, StyleSheet } from 'react-native';
+import { View, YellowBox, StyleSheet, Alert } from 'react-native';
 import { AppLoading, Font } from 'expo';
 import { Container, Content, Spinner } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
-import { Storage } from '@/services';
+import { Storage, Auth } from '@/services';
 import Standart from '@styles/standart';
+import { Axios } from '@http';
 
 export default class GVComponent extends React.Component {
 
@@ -35,7 +36,37 @@ export default class GVComponent extends React.Component {
             alert('error loading icon fonts', error);
         }
         this._setDefaultState();
+        // Set the AUTH token for any request
+        console.log('test')
+        Axios.interceptors.request.use(async (config) => {
+            const token = await Auth.getAuth().currentUser.getIdToken();
+            // if (user) {
+            //     // User is signed in.
+            //     await AsyncStorage.setItem(StorageConst.TOKEN, user.getIdToken());
+            //     console.log('user sign', user)
+            // } else {
+            //     console.log('user not sign', user)
+            //     // No user is signed in.
+            // }
+
+            // console.log('aaaa')
+            // const token = await AsyncStorage.getItem(StorageConst.TOKEN);
+            console.log('token', token)
+            config.headers.Authorization = token ? `Bearer ${token}` : '';
+
+            return config;
+        });
         await this._loadParams();
+    }
+
+    _errorHandler(err) {
+        console.log(err);
+        Alert.alert(err && err.response && err.response.data)
+    }
+
+    _responseResult(response) {
+        console.log(err);
+        Alert.alert(response && response.data)
     }
 
     _setDefaultState() {

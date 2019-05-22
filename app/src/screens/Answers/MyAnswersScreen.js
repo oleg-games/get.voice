@@ -3,7 +3,7 @@ import GVComponent from '@components/GVComponent';
 import { AsyncStorage, Image } from 'react-native';
 import { DeckSwiper, Container, Row, Grid, Header, Icon, Content, List, ListItem, Card, CardItem, Thumbnail, Text, Left, Body, Right, Button } from 'native-base';
 import Standart from '@styles/standart';
-import { Answers } from '@services';
+import { Axios } from '@http';
 
 export default class MyAnswersScreen extends GVComponent {
 
@@ -30,12 +30,10 @@ export default class MyAnswersScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
-      // const response = await Axios.get(`/answers/${this.state.phoneNumber}/all/notempty/my`);
-      const items = await Answers.getAnsersNotEmptyTextByToPhone(this.state.phoneNumber);
+      const { data: items } = await Axios.get(`/answers/all/my`);
       this.setState({ items });
-    } catch (error) {
-      console.log('error loading items', error);
-      alert('error loading items', error);
+    } catch (err) {
+      this._errorHandler(err)
     } finally {
       this._isLoading(false);
     }
@@ -50,7 +48,9 @@ export default class MyAnswersScreen extends GVComponent {
             <Card style={{ elevation: 3 }}>
               <CardItem>
                 <Left style={{ flexDirection: 'column', justifyContent: 'space-around' }}>
-                  <Thumbnail style={{ flex: 0.4 }} source={{ uri: item.questionRef && item.questionRef.image }} />
+                  <Thumbnail
+                    style={{ flex: 0.4 }}
+                    source={{ uri: item.questionRef && item.questionRef.image || undefined }} />
                   <Body>
                     <Text>{item.questionRef && item.questionRef.text}</Text>
                   </Body>
@@ -58,7 +58,9 @@ export default class MyAnswersScreen extends GVComponent {
               </CardItem>
               <CardItem>
                 <Left style={{ flexDirection: 'column', justifyContent: 'space-around' }}>
-                  <Thumbnail style={{ flex: 0.4 }} source={{ uri: item.image }} />
+                  <Thumbnail
+                    style={{ flex: 0.4 }}
+                    source={{ uri: item.image || undefined }} />
                   <Body>
                     <Text>{item.text}</Text>
                     <Text note>From: {item.questionRef && item.questionRef.fromPhone}</Text>

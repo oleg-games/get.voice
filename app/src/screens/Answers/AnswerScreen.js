@@ -7,7 +7,7 @@ import { PRIMARY_STANDART_MARGIN } from '@styles/common.js';
 import Standart from '@styles/standart.js';
 import StorageConst from '@constants/Storage';
 // At the top of your file
-import { Answers } from '@services';
+import { Axios } from '@http';
 
 export default class AnswerScreen extends GVComponent {
 
@@ -116,18 +116,14 @@ export default class AnswerScreen extends GVComponent {
       const answerId = await AsyncStorage.getItem(StorageConst.ANSWER);
       // //async to get answer info
       if (answerId) {
-        const answer = await Answers.getAnswer(answerId);
-        if (answer) {
-          console.log({ answer });
-          this.setState({ answer });
-        } else {
-          throw new Error(`cannot find answer with id ${answerId}`);
-        }
+        console.log('answerId', answerId)
+        const { data: answer } = await Axios.get(`/answers/${answerId}`);
+        console.log('answer', answer)
+        this.setState({ answer });
       }
       this.setState({ phoneNumber });
-    } catch (error) {
-      console.log('error', error)
-      alert('error loading params from router', error);
+    } catch (err) {
+      this._errorHandler(err);
     } finally {
       this._isLoading(false);
     }
@@ -145,8 +141,7 @@ export default class AnswerScreen extends GVComponent {
       const url = this.state.imgSource && await this._handleImagePicked(this.state.imgSource);
       await this._showFirstContactAsync(url);
     } catch (err) {
-      console.log('Error when add question', err);
-      alert('Error when add question', err);
+      this._errorHandler(err);
     } finally {
       this._isLoading(false);
     }
@@ -155,9 +150,8 @@ export default class AnswerScreen extends GVComponent {
   _handleImagePicked = async pickerResult => {
     try {
       return await this._uploadImageAsync(this.state.phoneNumber, pickerResult);
-    } catch (e) {
-      console.log(e);
-      alert('Upload failed:', error);
+    } catch (err) {
+      this._errorHandler(err);
     }
   };
 
@@ -180,18 +174,12 @@ export default class AnswerScreen extends GVComponent {
       const allContacts = contacts.data
         .reduce((all, el) => el.phoneNumbers ? all.concat(el.phoneNumbers) : all, [])
         .map((el) => el.number);
-      let data = { text: this.state.answerText, image: url }
+      let data = { text: this.state.answerText, image: url, contacts: allContacts }
 
-      await Answers.updateAnswer(this.state.answer.id, data);
-      // const response = await Axios.put('/answers', data);
+      // await Answers.updateAnswer(this.state.answer.id, data);
+      await Axios.put(`/answers/${this.state.answer.id}`, data);
       console.log('Done')
-      // TODO
-      // await axiosPublic.post('/addAnswers', {
-      //   questionId: id,
-      //   contacts: allContacts,
-      // });
       this.props.navigation.goBack();
-
     }
   }
 

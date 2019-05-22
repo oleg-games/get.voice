@@ -33,14 +33,11 @@ import Standart from '@styles/standart.js';
 
 // import Form from 'react-native-form';
 // import CountryPicker from 'react-native-country-picker-modal';
-import { Auth, Users } from '@services';
-import { Linking, WebBrowser } from 'expo'
 import { Axios } from '@http';
 
-const captchaUrl = `https://get-voice-4d167.firebaseapp.com/?appurl=${Linking.makeUrl('')}`
-// // const captchaUrl = `https://workers-ef768.firebaseapp.com/captcha.html?appurl=${Linking.makeUrl('')}`
+// const captchaUrl = `https://get-voice-4d167.firebaseapp.com/?appurl=${Linking.makeUrl('')}`
 
-const MAX_LENGTH_CODE = 6;
+const MAX_LENGTH_CODE = 5;
 const MAX_LENGTH_NUMBER = 20;
 
 // if you want to customize the country picker
@@ -114,7 +111,6 @@ export default class Verify extends GVComponent {
   constructor(props) {
     super(props);
     this.state = {
-      //       user: undefined,
       phone: '',
       confirmationResult: undefined,
       //       code: ''
@@ -124,9 +120,6 @@ export default class Verify extends GVComponent {
         callingCode: '7'
       }
     };
-    Auth.getAuth().onAuthStateChanged(user => {
-      this.setState({ user })
-    })
   }
 
   reset = () => {
@@ -142,54 +135,25 @@ export default class Verify extends GVComponent {
     const { phoneNumber } = this.refs.form.getValues();
     const { country } = this.state;
 
-    this.setState({ loading: true, phone: `${country.callingCode}${phoneNumber}` });
-
     try {
-      let token = null
-      const listener = ({ url }) => {
-        WebBrowser.dismissBrowser()
-        const tokenEncoded = Linking.parse(url).queryParams['token']
-        if (tokenEncoded) {
-          token = decodeURIComponent(tokenEncoded)
-        }
+      if (!phoneNumber) {
+        throw new Error('Please fill phone')
       }
 
-      Linking.addEventListener('url', listener)
-      await WebBrowser.openBrowserAsync(captchaUrl)
-      Linking.removeEventListener('url', listener)
-
-      if (token) {
-        //fake firebase.auth.ApplicationVerifier
-        //fake Database.getAuth().ApplicationVerifier
-        const captchaVerifier = {
-          type: 'recaptcha',
-          verify: () => Promise.resolve(token)
-        }
-
-        const response = await Axios.post('/security/code-firebase', {
-          phone: this.state.phoneNumber,
-          token: this.state.questionText,
-          url,
-          contacts: allContacts,
-        });
-
-        const confirmationResult = await Auth.getAuth().signInWithPhoneNumber(`+${country.callingCode}${phoneNumber}`, captchaVerifier)
-        this.setState({ confirmationResult })
-        setTimeout(() => {
-          Alert.alert('Sent!', "We've sent you a verification code", [{
-            text: 'OK',
-            onPress: () => this.refs.form.refs.textInput.focus()
-          }]);
-        }, 100);
-        this.setState({
-          loading: false,
-          enterCode: true,
-        });
-      }
-
-    } catch (e) {
-      console.log(e)
-      Alert.alert(e)
+      this.setState({ loading: true, phone: `${country.callingCode}${phoneNumber}` });
+      const { data } = await Axios.post('/security/code', { phone: `${country.callingCode}${phoneNumber}` });
+      setTimeout(() => {
+        Alert.alert('Sent!', `We've sent you a verification code ${data.code}`, [{
+          text: 'OK',
+          onPress: () => this.refs.form.refs.textInput.focus()
+        }]);
+      }, 100);
+      this.setState({
+        loading: false,
+        enterCode: true,
+      });
+    } catch (err) {
+      this._errorHandler(err)
     } finally {
       this.setState({ loading: false });
     }
@@ -198,30 +162,21 @@ export default class Verify extends GVComponent {
   _verifyCode = async () => {
     this.setState({ loading: true });
     try {
-      const { confirmationResult } = this.state
       const { code } = this.refs.form.getValues();
-      await confirmationResult.confirm(code + '')
-      if (this.state.phone) {
-        let userInDb = await Users.getUserByPhone(this.state.phone);
+      console.log(this.state.phone, code)
+      const { headers, data } = await Axios.post('/security/verify', { phone: this.state.phone, code });
+      console.log('token', headers.token)
 
-        if (!userInDb) {
-          const user = {
-            phone: this.state.phone,
-            smsInvite: true,
-            inSystem: true,
-          }
+      await AsyncStorage.setItem(StorageConst.PHONE_NUMBER, data && data.user && data.user.phone);
+      await AsyncStorage.setItem(StorageConst.TOKEN, headers && headers.token);
 
-          userInDb = await Users.addUser(user);
-        }
-
-        await AsyncStorage.setItem(StorageConst.PHONE_NUMBER, userInDb.phone);
-      }
       this.reset()
-      this.setState({ loading: false });
       Alert.alert('Success!', 'You have successfully verified your phone number');
+      this.setState({ loading: false });
       this.props.navigation.navigate('App');
     } catch (err) {
-      Alert.alert('Oops!', err.message);
+      this.setState({ loading: false });
+      this._errorHandler(err)
     }
   }
 
@@ -244,7 +199,6 @@ export default class Verify extends GVComponent {
   _getValidPhoneNumber() {
 
   }
-
 
   _changeCountry = (country) => {
     this.setState({ country });
@@ -336,14 +290,14 @@ export default class Verify extends GVComponent {
                   autoCapitalize={'none'}
                   autoCorrect={false}
                   onChangeText={this._onChangeText}
-                  placeholder={this.state.enterCode ? '_ _ _ _ _ _' : 'Phone Number'}
+                  placeholder={this.state.enterCode ? '_ _ _ _ _ ' : 'Phone Number'}
                   keyboardType={Platform.OS === 'ios' ? 'number-pad' : 'numeric'}
                   style={[styles.textInput, textStyle]}
                   returnKeyType='go'
                   autoFocus
                   // placeholderTextColor={brandColor}
                   // selectionColor={brandColor}
-                  maxLength={this.state.enterCode ? 6 : 20}
+                  maxLength={this.state.enterCode ? 5 : 20}
                   onSubmitEditing={this._getSubmitAction} />
 
               </View>

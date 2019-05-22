@@ -5,7 +5,7 @@ import { Row, Grid, Header, Icon, Content, List, ListItem, Thumbnail, Text, Left
 // At the top of your file
 import Standart from '@styles/standart';
 import StorageConst from '@constants/Storage';
-import { Answers } from '@services';
+import { Axios } from '@http';
 
 export default class ForMeQuestionsScreen extends GVComponent {
 
@@ -32,15 +32,22 @@ export default class ForMeQuestionsScreen extends GVComponent {
   _loadParams = async () => {
     try {
       this._isLoading(true);
-      // const response = await Axios.get(`/answers/${this.state.phoneNumber}/all/empty/forme`);
-      const items = await Answers.getAnsersEmptyTextByToPhone(this.state.phoneNumber);
+      const { data: items } = await Axios.get(`/answers/all/empty/my`);
       this.setState({ items });
-    } catch (error) {
-      console.log('error loading items', error);
-      alert('error loading items', error);
+    } catch (err) {
+      this._errorHandler(err);
     } finally {
       this._isLoading(false);
     }
+  };
+
+  _showQuestionForMe = async (answer) => {
+    console.log(answer)
+    const { navigate } = this.props.navigation;
+    await AsyncStorage.setItem(StorageConst.ANSWER, answer.id);
+    navigate('ForMeQuestion', {
+      haveNotAnswer: true,
+    })
   };
 
   _renderContent() {
@@ -66,13 +73,4 @@ export default class ForMeQuestionsScreen extends GVComponent {
       </Content>
     );
   }
-
-  _showQuestionForMe = async (answer) => {
-    console.log(answer)
-    const { navigate } = this.props.navigation;
-    await AsyncStorage.setItem(StorageConst.ANSWER, answer.id);
-    navigate('ForMeQuestion', {
-      haveNotAnswer: true,
-    })
-  };
 }

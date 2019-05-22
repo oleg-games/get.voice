@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, YellowBox, StyleSheet, Alert } from 'react-native';
+import { View, YellowBox, StyleSheet, Alert, AsyncStorage } from 'react-native';
 import { AppLoading, Font } from 'expo';
 import { Container, Content, Spinner } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
-import { Storage, Auth } from '@/services';
+import { Storage } from '@/services';
 import Standart from '@styles/standart';
+import StorageConst from '@constants/Storage';
 import { Axios } from '@http';
 
 export default class GVComponent extends React.Component {
@@ -36,37 +37,40 @@ export default class GVComponent extends React.Component {
             alert('error loading icon fonts', error);
         }
         this._setDefaultState();
+
         // Set the AUTH token for any request
-        console.log('test')
-        Axios.interceptors.request.use(async (config) => {
-            const token = await Auth.getAuth().currentUser.getIdToken();
-            // if (user) {
-            //     // User is signed in.
-            //     await AsyncStorage.setItem(StorageConst.TOKEN, user.getIdToken());
-            //     console.log('user sign', user)
-            // } else {
-            //     console.log('user not sign', user)
-            //     // No user is signed in.
-            // }
+        // await AsyncStorage.removeItem(StorageConst.TOKEN);
+        const token = await AsyncStorage.getItem(StorageConst.TOKEN);
 
-            // console.log('aaaa')
-            // const token = await AsyncStorage.getItem(StorageConst.TOKEN);
+        if (token) {
             console.log('token', token)
-            config.headers.Authorization = token ? `Bearer ${token}` : '';
+            Axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        }
 
-            return config;
-        });
         await this._loadParams();
     }
 
-    _errorHandler(err) {
-        console.log(err);
-        Alert.alert(err && err.response && err.response.data)
+    _errorHandler(err, title = "Oops. Something when't wrong!") {
+        if (err && err.response && err.response.data.error && err.response.data.error.message) {
+            this._errorReqHandler(err);
+        } else {
+            Alert.alert(title, err.message);
+        }
     }
 
-    _responseResult(response) {
-        console.log(err);
-        Alert.alert(response && response.data)
+    _errorReqHandler(err) {
+        if (err.response.status === 401) {
+            Alert.alert('Login problems!', err && err.response && err.response.data.error && err.response.data.error.message, [{
+                text: 'OK',
+                onPress: async () => {
+                    await AsyncStorage.removeItem(StorageConst.TOKEN);
+                    const { navigate } = this.props.navigation;
+                    navigate('AuthLoading')
+                }
+            }]);
+        } else {
+            Alert.alert('Oops. Someting wrong!', err && err.response && err.response.data.error && err.response.data.error.message);
+        }
     }
 
     _setDefaultState() {

@@ -5,7 +5,6 @@ import { Textarea, Form, Grid, Icon, Row, Content, Button, Text, Label } from 'n
 import { ImagePicker, Permissions, Contacts } from 'expo';
 import Standart from '@styles/standart.js';
 import StorageConst from '@constants/Storage';
-import { Questions } from '@services';
 import { Axios } from '@http';
 
 export default class QuestionScreen extends GVComponent {
@@ -30,52 +29,7 @@ export default class QuestionScreen extends GVComponent {
     };
   };
 
-  _renderContent() {
-    return (
-      <Content padder contentContainerStyle={Standart.container}>
-        <Grid>
-          <Row style={Standart.container}>
-            <Form style={{ flex: 1 }}>
-              <Label
-                style={this.state.question ? Standart.questionText : Standart.NONE}>
-                {this.state.question && this.state.question.text}
-              </Label>
-              <Textarea
-                rowSpan={5}
-                style={!this.state.question ? Standart.questionText : Standart.NONE}
-                value={this.state.questionText}
-                bordered
-                placeholder="Question"
-                onChangeText={(questionText) => this.setState({ questionText })} />
-              <Button
-                iconLeft
-                block
-                light
-                style={!this.state.question ? Standart.button : Standart.NONE}
-                onPress={this._onAddImage}>
-                <Icon name='add' />
-                <Text> Add Image </Text>
-              </Button>
-              <Image
-                source={!this.state.question ? { uri: this.state.imgSource } : { uri: this.state.question.image }}
-                style={Standart.questionImage}
-              />
-            </Form>
-          </Row>
-          <Row style={!this.state.question ? Standart.buttonRow : Standart.NONE}>
-            <Button
-              iconLeft
-              block
-              primary
-              style={Standart.button}
-              onPress={this._onAddQuestion}>
-              <Icon ios="ios-person-add" android="md-person-add" />
-              <Text> Submit </Text>
-            </Button>
-          </Row>
-        </Grid>
-      </Content>);
-  }
+
 
   componentWillUnmount = async () => {
     await AsyncStorage.removeItem(StorageConst.QUESTION);
@@ -88,23 +42,13 @@ export default class QuestionScreen extends GVComponent {
       const questionId = await AsyncStorage.getItem(StorageConst.QUESTION);
 
       if (questionId) {
-        const question = await Questions.getQuestion(questionId);
-
-        const response = await Axios.get(`/questions/${questionId}`);
-
-        console.log(response.data);
-
-        if (question && question.exists) {
-          this.setState({ question: { ...question.data(), id: question.id } });
-        } else {
-          throw new Error(`cannot find question with id ${questionId}`);
-        }
+        const { data: question } = await Axios.get(`/questions/${questionId}`);
+        this.setState({ question });
       }
 
       this.setState({ phoneNumber });
-    } catch (error) {
-      console.log(error)
-      alert('error loading item', error);
+    } catch (err) {
+      this._errorHandler(err);
     } finally {
       this._isLoading(false);
     }
@@ -154,14 +98,12 @@ export default class QuestionScreen extends GVComponent {
       const allContacts = contacts.data
         .reduce((all, el) => el.phoneNumbers ? all.concat(el.phoneNumbers) : all, [])
         .map((el) => el.number);
-      const response = await Axios.post('/question', {
-        phone: this.state.phoneNumber,
+      await Axios.post('/questions', {
         text: this.state.questionText,
         url,
         contacts: allContacts,
       });
 
-      this._responseResult(response);
       // this.props.navigation.state.params.onGoBack();
       this.props.navigation.goBack();
     }
@@ -223,5 +165,52 @@ export default class QuestionScreen extends GVComponent {
     //     'content-type': 'multipart/form-data',
     //   },
     // });
+  }
+
+  _renderContent() {
+    return (
+      <Content padder contentContainerStyle={Standart.container}>
+        <Grid>
+          <Row style={Standart.container}>
+            <Form style={{ flex: 1 }}>
+              <Label
+                style={this.state.question ? Standart.questionText : Standart.NONE}>
+                {this.state.question && this.state.question.text}
+              </Label>
+              <Textarea
+                rowSpan={5}
+                style={!this.state.question ? Standart.questionText : Standart.NONE}
+                value={this.state.questionText}
+                bordered
+                placeholder="Question"
+                onChangeText={(questionText) => this.setState({ questionText })} />
+              <Button
+                iconLeft
+                block
+                light
+                style={!this.state.question ? Standart.button : Standart.NONE}
+                onPress={this._onAddImage}>
+                <Icon name='add' />
+                <Text> Add Image </Text>
+              </Button>
+              <Image
+                source={!this.state.question ? { uri: this.state.imgSource } : { uri: this.state.question.image }}
+                style={Standart.questionImage}
+              />
+            </Form>
+          </Row>
+          <Row style={!this.state.question ? Standart.buttonRow : Standart.NONE}>
+            <Button
+              iconLeft
+              block
+              primary
+              style={Standart.button}
+              onPress={this._onAddQuestion}>
+              <Icon ios="ios-person-add" android="md-person-add" />
+              <Text> Submit </Text>
+            </Button>
+          </Row>
+        </Grid>
+      </Content>);
   }
 }

@@ -61,7 +61,7 @@ export default class MyAnswersScreen extends GVComponent {
                 <Left style={{ flexDirection: 'column', justifyContent: 'space-around' }}>
                   <Thumbnail
                     style={{ flex: 0.4 }}
-                    source={{ uri: item.image || undefined }} />
+                    source={{ uri: item.images[0] || undefined }} />
                   <Body>
                     <Text>{item.text}</Text>
                   </Body>

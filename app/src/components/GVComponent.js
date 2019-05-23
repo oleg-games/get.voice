@@ -3,7 +3,6 @@ import { View, YellowBox, StyleSheet, Alert, AsyncStorage } from 'react-native';
 import { AppLoading, Font } from 'expo';
 import { Container, Content, Spinner } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
-import { Storage } from '@/services';
 import Standart from '@styles/standart';
 import StorageConst from '@constants/Storage';
 import { Axios } from '@http';
@@ -126,59 +125,52 @@ export default class GVComponent extends React.Component {
         this.setState({ loading: false });
     }
 
-    _uploadImageAsync = async (phone, uri) => {
+    formatAvatarData(uri) {
+        const form = new FormData();
+        form.append('uploadFile', {
+            uri: uri,
+            type: 'image/jpeg', // <-- this
+            name: 'image.jpg',
+        });
+        return form;
+    }
+
+    /*
+      Make the request to the POST /select-files URL
+    */
+    _uploadImageAsync = async (uri) => {
+        console.log('uri', uri)
         this.setState({ uploading: true });
-        this.setState({ imgSource: uri.uri });
-        this.setState({ progress: 30 });
+        this.setState({ imgSource: uri });
+        this.setState({ progress: 1 });
 
-        const blob = await new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.onload = function () {
-                resolve(xhr.response);
-            };
-            xhr.onerror = function (e) {
-                console.log(e);
-                reject(new TypeError('Network request failed'));
-            };
-            xhr.responseType = 'blob';
-            xhr.open('GET', uri, true);
-            xhr.send(null);
-        });
-
-        var uploadTask = Storage
-            .getImagePhoneRef(phone)
-            .put(blob);
-
-        // Register three observers:
-        // 1. 'state_changed' observer, called any time the state changes
-        // 2. Error observer, called on failure
-        // 3. Completion observer, called on successful completion
-        uploadTask.on('state_changed', (snapshot) => {
-            // Observe state change events such as progress, pause, and resume
-            // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
-            this.setState({ progress: progress || 0 });
-            switch (snapshot.state) {
-                case Storage.instanse.TaskState.PAUSED: // or 'paused'
-                    console.log('Upload is paused');
-                    break;
-                case Storage.instanse.TaskState.RUNNING: // or 'running'
-                    console.log('Upload is running');
-                    break;
-            }
-        }, (error) => {
-            this.setState({ uploading: false });
-            console.log('Error when upload file', error)
-            alert('Error when upload file', error)
-            blob.close();
-        }, () => {
-            blob.close();
-            this.setState({ uploading: false });
-        });
-
-        await uploadTask;
-        return await uploadTask.snapshot.ref.getDownloadURL();
+        try {
+            const { data } = await Axios.post('/storage/upload',
+                this.formatAvatarData(uri),
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    },
+                    onUploadProgress: (progressEvent) => {
+                        console.log('loaded', progressEvent.loaded)
+                        console.log('total', progressEvent.total)
+                        const progress = (progressEvent.loaded / progressEvent.total) * 100;
+                        console.log('progress', progress)
+                        if (progress === 100) {
+                            this.setState({ progress: 0 });
+                        } else {
+                            this.setState({ progress });
+                        }
+                    }
+                },
+            )
+            console.log('data', data)
+            return data && data.url;
+        } catch (err) {
+            console.log('err', err)
+            this.setState({ progress: 0 });
+            throw new Error(err);
+        }
     }
 }
 

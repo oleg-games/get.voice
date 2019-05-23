@@ -137,21 +137,11 @@ export default class AnswerScreen extends GVComponent {
 
     try {
       this._isLoading(true);
-      console.log('imgSource', this.state.imgSource);
-      const url = this.state.imgSource && await this._handleImagePicked(this.state.imgSource);
-      await this._showFirstContactAsync(url);
+      await this._showFirstContactAsync(this.state.url ? [this.state.url] : []);
     } catch (err) {
       this._errorHandler(err);
     } finally {
       this._isLoading(false);
-    }
-  };
-
-  _handleImagePicked = async pickerResult => {
-    try {
-      return await this._uploadImageAsync(this.state.phoneNumber, pickerResult);
-    } catch (err) {
-      this._errorHandler(err);
     }
   };
 
@@ -174,7 +164,7 @@ export default class AnswerScreen extends GVComponent {
       const allContacts = contacts.data
         .reduce((all, el) => el.phoneNumbers ? all.concat(el.phoneNumbers) : all, [])
         .map((el) => el.number);
-      let data = { text: this.state.answerText, image: url, contacts: allContacts }
+      let data = { text: this.state.answerText, images: [url], contacts: allContacts }
 
       // await Answers.updateAnswer(this.state.answer.id, data);
       await Axios.put(`/answers/${this.state.answer.id}`, data);
@@ -218,6 +208,19 @@ export default class AnswerScreen extends GVComponent {
       return;
     }
     this.setState({ imgSource: result.uri });
+
+    try {
+      // const url = this.state.imgSource;
+      const url = this.state.imgSource && await this._uploadImageAsync(this.state.imgSource);
+      console.log('url', url)
+      this.setState({ url });
+    } catch (err) {
+      console.log(err);
+      this._errorHandler(err);
+    } finally {
+      this.setState({ isLoadingImg: false });
+    }
+
     // ImagePicker saves the taken photo to disk and returns a local URI to it
     // let localUri = result.uri;
     // let filename = localUri.split('/').pop();

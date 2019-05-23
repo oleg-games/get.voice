@@ -51,7 +51,6 @@ export default class MyQuestionsScreen extends GVComponent {
     try {
       this._isLoading(true);
       const { data: items } = await Axios.get(`/questions/all/my`);
-      console.log('items', items)
       this.setState({ items });
     } catch (err) {
       this._errorHandler(err);
@@ -112,7 +111,7 @@ export default class MyQuestionsScreen extends GVComponent {
                 <ListItem thumbnail onPress={this._showSelectedQuestion.bind(this, item)}>
                   <Left>
                     <Thumbnail square
-                      source={{ uri: item.images && item.images[0] || undefined }} />
+                      source={{ uri: item.image || undefined }} />
                   </Left>
                   <Body>
                     <Text style={Standart.listItemText}>{item.text}</Text>

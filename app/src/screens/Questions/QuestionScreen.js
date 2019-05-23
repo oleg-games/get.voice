@@ -13,11 +13,13 @@ export default class QuestionScreen extends GVComponent {
     super(props);
     this.state = {
       phoneNumber: '',
+      url: '',
       questionText: '',
       question: undefined,
       text: '',
       value: '',
       containsError: false,
+      isLoadingImg: false,
     };
   }
 
@@ -62,8 +64,9 @@ export default class QuestionScreen extends GVComponent {
 
     try {
       this._isLoading(true);
-      const url = this.state.imgSource && await this._handleImagePicked(this.state.imgSource);
-      await this._showFirstContactAsync(url);
+      // const url = this.state.imgSource && await this._uploadImageAsync(this.state.imgSource);
+      // console.log('url', url)
+      await this._showFirstContactAsync(this.state.url ? [this.state.url] : []);
     } catch (err) {
       this._errorHandler(err);
     } finally {
@@ -71,16 +74,7 @@ export default class QuestionScreen extends GVComponent {
     }
   };
 
-  _handleImagePicked = async pickerResult => {
-    try {
-      return await this._uploadImageAsync(this.state.phoneNumber, pickerResult);
-    } catch (e) {
-      console.log(e);
-      alert('Upload failed:', error);
-    }
-  };
-
-  async _showFirstContactAsync(url) {
+  async _showFirstContactAsync(images) {
     const permission = await Permissions.askAsync(Permissions.CONTACTS);
 
     if (permission.status !== 'granted') {
@@ -100,7 +94,7 @@ export default class QuestionScreen extends GVComponent {
         .map((el) => el.number);
       await Axios.post('/questions', {
         text: this.state.questionText,
-        url,
+        images: images && images.length ? images : undefined,
         contacts: allContacts,
       });
 
@@ -145,6 +139,20 @@ export default class QuestionScreen extends GVComponent {
     }
 
     this.setState({ imgSource: result.uri });
+    this.setState({ isLoadingImg: true });
+
+    try {
+      // const url = this.state.imgSource;
+      const url = this.state.imgSource && await this._uploadImageAsync(this.state.imgSource);
+      console.log('url', url)
+      this.setState({ url });
+    } catch (err) {
+      console.log(err);
+      this._errorHandler(err);
+    } finally {
+      this.setState({ isLoadingImg: false });
+    }
+
     // ImagePicker saves the taken photo to disk and returns a local URI to it
     // let localUri = result.uri;
     // let filename = localUri.split('/').pop();
@@ -194,7 +202,7 @@ export default class QuestionScreen extends GVComponent {
                 <Text> Add Image </Text>
               </Button>
               <Image
-                source={!this.state.question ? { uri: this.state.imgSource } : { uri: this.state.question.image }}
+                source={!this.state.question ? { uri: this.state.imgSource } : { uri: this.state.question.images && this.state.question.images[0] }}
                 style={Standart.questionImage}
               />
             </Form>
@@ -204,6 +212,7 @@ export default class QuestionScreen extends GVComponent {
               iconLeft
               block
               primary
+              disabled={this.state.isLoadingImg}
               style={Standart.button}
               onPress={this._onAddQuestion}>
               <Icon ios="ios-person-add" android="md-person-add" />

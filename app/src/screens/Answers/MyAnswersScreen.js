@@ -50,7 +50,7 @@ export default class MyAnswersScreen extends GVComponent {
                 <Left style={{ flexDirection: 'column', justifyContent: 'space-around' }}>
                   <Thumbnail
                     style={{ flex: 0.4 }}
-                    source={{ uri: item.questionRef && item.questionRef.image || undefined }} />
+                    source={{ uri: item.questionRef && item.questionRef.images && item.questionRef.images[0] || undefined }} />
                   <Body>
                     <Text>{item.questionRef && item.questionRef.text}</Text>
                   </Body>
@@ -60,7 +60,7 @@ export default class MyAnswersScreen extends GVComponent {
                 <Left style={{ flexDirection: 'column', justifyContent: 'space-around' }}>
                   <Thumbnail
                     style={{ flex: 0.4 }}
-                    source={{ uri: item.image || undefined }} />
+                    source={{ uri: item.images && item.images[0] || undefined }} />
                   <Body>
                     <Text>{item.text}</Text>
                     <Text note>From: {item.questionRef && item.questionRef.fromPhone}</Text>

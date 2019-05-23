@@ -60,7 +60,7 @@ export default class ForMeQuestionsScreen extends GVComponent {
               renderRow={(item) =>
                 <ListItem thumbnail onPress={this._showQuestionForMe.bind(this, item)}>
                   <Left>
-                    <Thumbnail square source={{ uri: item.questionRef && item.questionRef.image }} />
+                    <Thumbnail square source={{ uri: item.questionRef && item.questionRef.images && item.questionRef.images[0] }} />
                   </Left>
                   <Body>
                     <Text style={Standart.listItemText}>{item.questionRef && item.questionRef.text}</Text>

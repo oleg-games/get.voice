@@ -111,7 +111,7 @@ export default class MyQuestionsScreen extends GVComponent {
                 <ListItem thumbnail onPress={this._showSelectedQuestion.bind(this, item)}>
                   <Left>
                     <Thumbnail square
-                      source={{ uri: item.image || undefined }} />
+                      source={{ uri: item.images && item.images[0] || undefined }} />
                   </Left>
                   <Body>
                     <Text style={Standart.listItemText}>{item.text}</Text>

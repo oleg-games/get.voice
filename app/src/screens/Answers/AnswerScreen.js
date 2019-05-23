@@ -22,6 +22,7 @@ export default class AnswerScreen extends GVComponent {
       imgSource: undefined,
       fontLoaded: false,
       containsError: false,
+      isLoadingImg: false,
     };
     this._bootstrapAsync();
   }
@@ -82,7 +83,7 @@ export default class AnswerScreen extends GVComponent {
                   style={Standart.answerImage}
                 /> */}
               <Image
-                source={{ uri: this.state.answer && this.state.answer.questionRef.image }}
+                source={{ uri: this.state.answer && this.state.answer.questionRef.images && this.state.answer.questionRef.images[0] }}
                 style={Standart.questionImage}
               />
             </Form>
@@ -93,6 +94,7 @@ export default class AnswerScreen extends GVComponent {
               iconLeft
               block
               primary
+              disabled={this.state.isLoadingImg}
               style={Standart.button}
               onPress={this._onGetAnswer}>
               <Icon ios="ios-person-add" android="md-person-add" />
@@ -208,6 +210,7 @@ export default class AnswerScreen extends GVComponent {
       return;
     }
     this.setState({ imgSource: result.uri });
+    this.setState({ isLoadingImg: true });
 
     try {
       // const url = this.state.imgSource;

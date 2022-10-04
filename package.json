@@ -15,7 +15,7 @@
     "awesome-phonenumber": "^2.10.0",
     "axios": "^0.18.0",
     "babel": "^6.23.0",
-    "expo": "^32.0.0",
+    "expo": "^46.0.14",
     "firebase": "^5.11.1",
     "frisbee": "^2.0.6",
     "google-libphonenumber": "^3.2.2",
